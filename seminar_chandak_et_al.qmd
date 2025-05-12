@@ -31,13 +31,15 @@ revealjs-plugins:
 ## Theoretical bounds {data-name="Theoretical bounds"}
 
 ## LDPC {data-name="LDPC"}
-* BCH+Raptor codes VS LDPC
-* Simulations (code)
-* Synchronzation marker
-* Addressing index+BCH
-* MSA
+::: {.incremental}
+- BCH+Raptor codes VS LDPC
+- Simulations (code)
+- Synchronzation marker
+- Addressing index+BCH
+- MSA
+:::
 
-* **Experimental results** {data-name="Experimental results"}
+## Experimental results {data-name="Experimental results"}
 * Insertions and deletions based on heuristics
 
 ## Crafting the Presentation: Tools {data-name="Conclusion"}
