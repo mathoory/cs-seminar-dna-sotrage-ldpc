@@ -1,0 +1,46 @@
+---
+title: "Seminar on DNA Data Storage"
+subtitle: "Improved read/write cost tradeoff in DNA-based data storage using LDPC codes<br><br>Shubham Chandak, Kedar Tatwawadi, Billy Lau, Jay Mardia, Matthew Kubit, Joachim Neu, Peter Griffin, Mary Wootters, Tsachy Weissman, Hanlee J<br>(2019)<br><br>Presented by: Atar Ron and Mattan Hoory"
+format:
+  revealjs: 
+    title-slide-attributes:
+      data-state: "hide-menubar"
+    slide-number: true
+    preview-links: auto
+    css: style.css
+    logo: assets/CS_LOGO.jpg
+    footer: 'DNA Data Storage - 02360801 - Spring 2025'
+    toc: true
+    simplemenu:
+        flat: true
+        barhtml:
+            header: "<div class='menubar'><ul class='menu'></ul><div>"
+        scale: 0.67
+
+revealjs-plugins:
+  - simplemenu
+---
+## {data-name="Intro"}
+![](assets/publication.png)
+<br>of the most important problems in DNA data storage is the cost of writing and reading DNA.
+
+## Goals and motivation
+
+## Separation Strategy VS Single Large block code {data-name="Strategies"}
+
+## Theoretical bounds {data-name="Theoretical bounds"}
+
+## LDPC {data-name="LDPC"}
+* BCH+Raptor codes VS LDPC
+* Simulations (code)
+* Synchronzation marker
+* Addressing index+BCH
+* MSA
+
+* **Experimental results** {data-name="Experimental results"}
+* Insertions and deletions based on heuristics
+
+## Crafting the Presentation: Tools {data-name="Conclusion"}
+- [`Quarto`](https://quarto.org/): markdown-based authoring system that supports multiple output formats.
+- [`revealjs`](https://revealjs.com/): a framework for creating interactive presentations using HTML and JavaScript.
+  - [`simplemenu`](https://github.com/Martinomagnifico/quarto-simplemenu): a plugin to create a menu bar that allows us to navigate through the presentation.
