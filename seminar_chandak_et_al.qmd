@@ -31,6 +31,17 @@ revealjs-plugins:
 ## Theoretical bounds {data-name="Theoretical bounds"}
 
 ## LDPC {data-name="LDPC"}
+LDPC codes are a class of linear block error correction codes. Originally invented by Gallager in the 1960s, yet has become into wide use only in recent decades. They are used in cellular communications, Wi-Fi, video broadcasts, and more today.
+
+::: {.incremental}
+- Tanner graphs and parity check matrices $H$
+- BSC (The Binary Symmetric Channel) vs BEC (Binary Erasure Channel)
+- Decoding Algorithm
+  - Gallager’s bit-flipping algorithm (BSC)
+  - Belief propagation algorithm
+:::
+
+## Extensions
 ::: {.incremental}
 - BCH+Raptor codes VS LDPC
 - Simulations (code)
@@ -39,10 +50,23 @@ revealjs-plugins:
 - MSA
 :::
 
+
 ## Experimental results {data-name="Experimental results"}
-* Insertions and deletions based on heuristics
+::: {.incremental}
+- Insertions and deletions based on heuristics
+- Simulations based on [github](https://github.com/shubhamchandak94/LDPC_DNA_storage) code
+:::
 
 ## Crafting the Presentation: Tools {data-name="Conclusion"}
 - [`Quarto`](https://quarto.org/): markdown-based authoring system that supports multiple output formats.
 - [`revealjs`](https://revealjs.com/): a framework for creating interactive presentations using HTML and JavaScript.
   - [`simplemenu`](https://github.com/Martinomagnifico/quarto-simplemenu): a plugin to create a menu bar that allows us to navigate through the presentation.
+
+## Ideas
+
+- Gallager youtube talk at the end of the slides
+- Example of LDPC using [pyldpc](https://hichamjanati.github.io/pyldpc/auto_examples/plot_coding_decoding_simulation.html#sphx-glr-auto-examples-plot-coding-decoding-simulation-py)
+
+
+## Questions for Eitan
+1. Is bit-flipping enough? (Should we go into decoding LDPC with Message Passing?)
