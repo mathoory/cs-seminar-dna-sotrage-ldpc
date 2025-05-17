@@ -26,9 +26,15 @@ revealjs-plugins:
 
 ## Goals and motivation
 
-## Separation Strategy VS Single Large block code {data-name="Strategies"}
-
 ## Theoretical bounds {data-name="Theoretical bounds"}
+* Definitions 
+* Rate < Capacity 
+* The case $epsilon = 0$ 
+* The case $epsilon \neq 0$
+
+## Separation Strategy VS Single Large block code {data-name="Strategies"}
+* Simulation results (Graph 4)
+* Idea (probnbaly not): Implement a small subset of the simluation and expalin 
 
 ## LDPC {data-name="LDPC"}
 LDPC codes are a class of linear block error correction codes. Originally invented by Gallager in the 1960s, yet has become into wide use only in recent decades. They are used in cellular communications, Wi-Fi, video broadcasts, and more today.
@@ -38,26 +44,34 @@ LDPC codes are a class of linear block error correction codes. Originally invent
 - BSC (The Binary Symmetric Channel) vs BEC (Binary Erasure Channel)
 - Decoding Algorithm
   - Gallager’s bit-flipping algorithm (BSC)
-  - Belief propagation algorithm
+  - Belief propagation algorithm ?
 :::
 
-## Extensions
+## Encoding Schema
 ::: {.incremental}
-- BCH+Raptor codes VS LDPC
-- Simulations (code)
-- Synchronzation marker
+- Reads
 - Addressing index+BCH
-- MSA
-:::
-
+- MSA 
+- Sync Markers
+- LDPC
+ 
 
 ## Experimental results {data-name="Experimental results"}
 ::: {.incremental}
-- Insertions and deletions based on heuristics
+- Figure 8
+- Error profiles (4.1.1)
+- Deviation from poisson distribution in number of reads (4.1.1)
+- Probability of decoding failure (4.1.5)
+- Stress testing (4.1.6)
+- Performance and Scalability (4.1.7)
 - Simulations based on [github](https://github.com/shubhamchandak94/LDPC_DNA_storage) code
 :::
 
-## Crafting the Presentation: Tools {data-name="Conclusion"}
+## Concluisions {data-name="Experimental results"}
+ {data-name="Conclusion"}
+
+
+## Crafting the Presentation: Tools
 - [`Quarto`](https://quarto.org/): markdown-based authoring system that supports multiple output formats.
 - [`revealjs`](https://revealjs.com/): a framework for creating interactive presentations using HTML and JavaScript.
   - [`simplemenu`](https://github.com/Martinomagnifico/quarto-simplemenu): a plugin to create a menu bar that allows us to navigate through the presentation.
