@@ -1,3 +1,4 @@
+
 ---
 title: "Seminar on DNA Data Storage"
 subtitle: "Improved read/write cost tradeoff in DNA-based data storage using LDPC codes<br><br>Shubham Chandak, Kedar Tatwawadi, Billy Lau, Jay Mardia, Matthew Kubit, Joachim Neu, Peter Griffin, Mary Wootters, Tsachy Weissman, Hanlee J<br>(2019)<br><br>Presented by: Atar Ron and Mattan Hoory"
@@ -20,32 +21,120 @@ format:
 revealjs-plugins:
   - simplemenu
 ---
-## {data-name="Intro"}
+## Intro {data-name="Intro"}
 ![](assets/publication.png)
 <br>of the most important problems in DNA data storage is the cost of writing and reading DNA.
 
 ## Goals and motivation
+- What factors determine the cost of writing and reading DNA?
+  - Cost of synthesis per base: $c_{\text{synthesis}}$
+  - Cost of sequencing per base: $c_{\text{sequencing}}$
 
-## Theoretical bounds {data-name="Theoretical bounds"}
-* Definitions 
-* Rate < Capacity 
-* The case $epsilon = 0$ 
-* The case $epsilon \neq 0$
+![](assets/BEC_DNA_Price_2017.png){width=120% fig-align="center"}
 
-## Separation Strategy VS Single Large block code {data-name="Strategies"}
-* Simulation results (Graph 4)
-* Idea (probnbaly not): Implement a small subset of the simluation and expalin 
+## Goals and motivation
+- What factors determine the cost of writing and reading DNA?
+  - Cost of synthesis per base: $c_{\text{synthesis}}$
+  - Cost of sequencing per base: $c_{\text{sequencing}}$
+  - Total number bases synthesized: $|\text{SYN}|$
+  - Total number bases sequenced: $|\text{SEQ}|$
+  - Main tradeoff: $|\text{SYN}|$ vs $|\text{SEQ}|$
+  - Coding scheme 
+
+<!-- (Maybe give a numerical example?), add diagram -->
+
+## Communiaction and Information Basics {data-name="Theoretical bounds"}
+
+## Theory of communication 
+- define a Channel 
+- BEC channel
+- BSC channel
+<!-- TODO: Diagrams -->
+
+## Cost of read and write
+* $c_w$ - average number of encoded bits synthesized per information bit
+* $c_r$ - average number of encoded bits read per information bit for 
+$$ \text{Coverage}= \frac{c_r}{c_w}=\frac{\frac{|\text{READ}|}{|\text{DATA}|}}{\frac{|\text{SEQ}|}{|\text{DATA}|}} = \frac{|\text{READ}|}{|\text{SYNTH}|}$$
+
+## Rate
+
+## Capacity of a Binary Erasure Channel (BEC)
+Assume $X\sim\mathrm{Bern}\bigl(\tfrac12\bigr)$ and a Binary Erasure Channel with erasure probability $\varepsilon$. Then:
+
+1. **Prior entropy**  
+   $$  
+   H(X)=1  
+   $$
+
+2. **Conditional entropy**  
+   $$  
+   \begin{aligned}  
+   H(X\mid Y)
+   &=P(Y=\bot)\,H(X\mid Y=\bot)\;+\;P(Y\neq\bot)\,H(X\mid Y\neq\bot)\\
+   &=\varepsilon\cdot 1 \;+\;(1-\varepsilon)\cdot 0\\
+   &=\varepsilon
+   \end{aligned}
+   $$
+
+## Capacity of a Binary Erasure Channel (BEC)
+3. **Mutual information**  
+   $$  
+   \begin{aligned}  
+   I(X;Y)
+   &=H(X)\;-\;H(X\mid Y)\\
+   &=1\;-\;\varepsilon  
+   \end{aligned}
+   $$
+
+4. **Capacity**  
+   $$  
+   C \;=\;\max_{p_X} I(X;Y) \;=\;1-\varepsilon  
+   $$
+
+<!-- TODO: Numerical Example -->
+## Rate < Capacity
+
+
+## The case $\epsilon = 0$ 
+<!-- TODO: -->
+
+## The case $\epsilon \neq 0$ 
+<!-- TODO: -->
+
+
+## $c_r$ vs $c_w$: Theoretical bounds 
+<!-- TODO: Figure4  with only orange and blue plots -->
+
+# Comparison of coding strategies {data-name="Strategies"}
+
+## Inner/Outer Code Separation
+<!-- TODO(Matan): Animation -->
+
+## Single large block code
+<!-- TODO(Matan): Animation -->
+
+## $c_r$ vs $c_w$: Simulation bounds (Separated/Large block) 
+<!-- TODO: Figure 4 with all plots -->
+
 
 ## LDPC {data-name="LDPC"}
 LDPC codes are a class of linear block error correction codes. Originally invented by Gallager in the 1960s, yet has become into wide use only in recent decades. They are used in cellular communications, Wi-Fi, video broadcasts, and more today.
 
-::: {.incremental}
-- Tanner graphs and parity check matrices $H$
-- BSC (The Binary Symmetric Channel) vs BEC (Binary Erasure Channel)
-- Decoding Algorithm
+## LDPC Example 
+- Intuitive example of how LDPC works
+- Low density -> which parity bits are responsible for which data bits
+<!-- TODO: Do like the video -->
+
+## LDPC Theory
+- Tanner graphs and parity check matrices $H$, $G$ (generation matrix)
+
+## LDPC - Encoding Algorithm
+
+## LDPC - Decoding Algorithm 
+### Gallager’s bit-flipping algorithm
   - Gallager’s bit-flipping algorithm (BSC)
-  - Belief propagation algorithm ?
-:::
+
+## LDPC Decoding: Belief propagation algorithm
 
 ## Encoding Schema
 ::: {.incremental}
@@ -54,7 +143,7 @@ LDPC codes are a class of linear block error correction codes. Originally invent
 - MSA 
 - Sync Markers
 - LDPC
- 
+:::
 
 ## Experimental results {data-name="Experimental results"}
 ::: {.incremental}
@@ -65,11 +154,11 @@ LDPC codes are a class of linear block error correction codes. Originally invent
 - Stress testing (4.1.6)
 - Performance and Scalability (4.1.7)
 - Simulations based on [github](https://github.com/shubhamchandak94/LDPC_DNA_storage) code
+- Simulation results (Graph 4)
+- Idea (probably not): Implement a small subset of the simulation and explain 1
 :::
 
-## Concluisions {data-name="Experimental results"}
- {data-name="Conclusion"}
-
+## Conclusions {data-name="Conclusion"}
 
 ## Crafting the Presentation: Tools
 - [`Quarto`](https://quarto.org/): markdown-based authoring system that supports multiple output formats.
@@ -80,7 +169,3 @@ LDPC codes are a class of linear block error correction codes. Originally invent
 
 - Gallager youtube talk at the end of the slides
 - Example of LDPC using [pyldpc](https://hichamjanati.github.io/pyldpc/auto_examples/plot_coding_decoding_simulation.html#sphx-glr-auto-examples-plot-coding-decoding-simulation-py)
-
-
-## Questions for Eitan
-1. Is bit-flipping enough? (Should we go into decoding LDPC with Message Passing?)
