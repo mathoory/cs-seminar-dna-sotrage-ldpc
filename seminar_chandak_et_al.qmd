@@ -103,7 +103,7 @@ Assume $X\sim\mathrm{Bern}\bigl(\tfrac12\bigr)$ and a Binary Erasure Channel wit
 
 
 ## $c_r$ vs $c_w$: Theoretical bounds 
-<!-- TODO: Figure4  with only orange and blue plots -->
+<!-- TODO(Matan): Figure4  with only orange and blue plots -->
 
 # Comparison of coding strategies {data-name="Strategies"}
 
