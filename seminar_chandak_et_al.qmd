@@ -21,40 +21,157 @@ format:
 revealjs-plugins:
   - simplemenu
 ---
-## Intro {data-name="Intro"}
+## Introduction {data-name="Intro"}
+
 ![](assets/publication.png)
-<br>of the most important problems in DNA data storage is the cost of writing and reading DNA.
 
-## Goals and motivation
-- What factors determine the cost of writing and reading DNA?
-  - Cost of synthesis per base: $c_{\text{synthesis}}$
-  - Cost of sequencing per base: $c_{\text{sequencing}}$
+In DNA-based data storage, there are two critical challenges:
 
-![](assets/BEC_DNA_Price_2017.png){width=120% fig-align="center"}
+- **Write cost** — how much synthetic DNA we need to store one bit of information  
+- **Read cost** — how many sequencing reads are needed to reliably recover that bit
 
-## Goals and motivation
-- What factors determine the cost of writing and reading DNA?
-  - Cost of synthesis per base: $c_{\text{synthesis}}$
-  - Cost of sequencing per base: $c_{\text{sequencing}}$
-  - Total number bases synthesized: $|\text{SYN}|$
-  - Total number bases sequenced: $|\text{SEQ}|$
-  - Main tradeoff: $|\text{SYN}|$ vs $|\text{SEQ}|$
-  - Coding scheme 
+These two costs are closely related, and thus, one of the most important problems in DNA data storage is finding an effective tradeoff between them.
 
-<!-- (Maybe give a numerical example?), add diagram -->
+---
 
-## Communiaction and Information Basics {data-name="Theoretical bounds"}
+### Discussion Questions
 
-## Theory of communication 
-- define a Channel 
-- BEC channel
+::: {.incremental}
+
+- Why are the cost of write and cost of read closely related?  
+&nbsp;  
+- What are the main factors that affect the cost of write?  
+&nbsp;  
+- What are the main factors that affect the cost of read?
+
+:::
+
+
+---
+
+### Main Goals
+
+Since the cost of write and cost of read are strongly correlated, this paper aims to:
+
+- Establish a theoretical lower bound on the tradeoff between write cost and read cost.
+- Design and evaluate a practical coding scheme (based on LDPC codes) that achieves a better tradeoff than previous methods.
+- Validate the performance of the scheme through both real experiments (DNA synthesis and sequencing) and simulations.
+
+---
+
+
+### Cost of Read, Cost of Write, and Coverage {data-name="Theoretical bounds"}
+
+* **Cost Of Write $c_w$** — Average number of encoded bits synthesized per information bit: $\frac{\text{|SYN}|}{|\text{DATA}|}$  
+* **Cost of Read $c_r$** — Average number of bits read per information bit: $\frac{\text{|READ}|}{|\text{DATA}|}$
+
+* **Coverage** — Average number of bits read per **synthesized** bit:  
+  $$
+  \text{Coverage}= \frac{|\text{READ}|}{|\text{SYN}|}=\frac{\frac{|\text{READ}|}{|\text{DATA}|}}{\frac{|\text{SYN}|}{|\text{DATA}|}}=\frac{c_r}{c_w}
+  $$
+
+---
+
+### Is Coverage a Good Metric?
+
+* Coverage has been widely used in prior work to estimate the efficiency of read/write tradeoffs in DNA-based storage systems.  
+* It measures how many sequencing reads are made per synthesized bit — but is that the best way to evaluate system performance?
+* We consider a simple example that demonstrates why coverage can be misleading.
+
+---
+
+#### Example
+
+<span style="font-size:0.9em">Suppose we compare two storage systems with the following properties:</span>
+
+| System        | Write Cost = $c_w$ | Read Cost = $c_r$ | Coverage = $c_r/c_w$ |
+|---------------|---------------------|--------------------|------------------------|
+| **System A**  | 4                   | 12                 | 3                   |
+| **System B**  | 2                   | 10                 | 5                   |
+
+* <span style="font-size:0.9em">At first glance, System A has better (lower) coverage. Therefore, when evaluating the systems based on coverage only, we will prefer System A. </span> 
+
+
+---
+
+#### Example - cont.
+
+* <span style="font-size:0.9em"> But, it is easy to see that System B reads fewer total bits per information bit (10 vs. 12), and also writes significantly less DNA. So despite having higher coverage, System B is clearly more efficient overall. </span>
+
+**Conclusion:** <span style="font-size:0.9em">This example shows that coverage alone can be misleading, especially when comparing systems with different write costs.Instead, it's better to compare actual read and write costs per information bit directly.</span><br>
+
+**Important Note:** <span style="font-size:0.9em"> Coverage can be viewed as the average number of times each strand appears in the sequencing reads. We will make use of this later.
+
+
+---
+
+### Notations
+
+- $n$ – Number of strands.  
+- $L$ – Strand length.  
+- $c_{w}$ – Cost of write.  
+- $c_{r}$ – Cost of read.  
+- $|\text{SYN}|$ – Total number of bases synthesized.  
+- $|\text{READ}|$ – Total number of bases read.
+- $\epsilon$ - Substitution error rate.
+
+
+---
+
+### Model Definition {data-name="Theoretical Bounds"}
+
+- The storage system encodes $n$ information strands, each of length $L$.
+- To store the data with write cost $c_w$, the encoder synthesizes $n \cdot c_w$ strands of length $L$.
+- To retrieve the data with read cost $c_r$, the decoder samples $n \cdot c_r$ strands of length $L$.
+
+- It is assumed, for simplicity, that the decoder has access to the index of each strand. We later explain how the authors overcame this in practice.
+
+---
+
+### Model Definition - cont. {data-name="Theoretical Bounds"}
+
+- The reads are subject to:
+  - **Strand dropout** — some synthesized strands may never be sampled.
+  - **Substitution errors** — for simplicity, the theoretical analysis ignores deletion and insertion errors. We later explain how the authors overcame this in practice.
+  - **Sampling variability** — the number of times each strand is sampled is random (Poisson-distributed).
+  - **Bit-level noise** — each sampled strand is passed through a Binary Symmetric Channel (BSC) with bit-flip probability $\epsilon$. This simulates sequencing errors.
+
+---
+
+### Data Distribution {data-name="Theoretical Bounds"}
+
+- <span style="font-size:0.8em">For the sake of the theoretical analysis, it is assumed that the sampled DNA strands follow a Poisson distribution.</span>
+- <span style="font-size:0.8em">Although the standard Poisson model does not account for synthesis or sequencing biases, it still provides significant insights into strand sampling behavior.</span>
+
+#### Poisson Recap:
+- <span style="font-size:0.8em">The Poisson distribution models the number of times an event occurs in a fixed interval, given a known average rate $\lambda$.</span>
+- <span style="font-size:0.8em">The probability mass function is given by:</span>
+  
+$$
+P(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}
+$$
+---
+
+### Why Poisson? {data-name="Theoretical Bounds"}
+
+- <span style="font-size:0.8em">In the paper, the authors assume that each of the $n \cdot c_r$ sequenced strands is sampled independently and uniformly at random from the $n \cdot c_w$ synthesized strands.</span>
+- <span style="font-size:0.8em">Under this model, the number of times any particular strand is sampled follows a Poisson distribution with parameter $\lambda = \frac{c_r}{c_w} = \text{Coverage}$.</span>
+- <span style="font-size:0.8em">This is because coverage reflects the expected number of times each strand appears among the total sequenced reads.</span>
+
+
+---
+
+### Communication and Information Basics {data-name="Theoretical Bounds"}
+
+---
+
+### Theory of Communication
+
+- Define a Channel  
+- BEC channel  
 - BSC channel
-<!-- TODO: Diagrams -->
 
-## Cost of read and write
-* $c_w$ - average number of encoded bits synthesized per information bit
-* $c_r$ - average number of encoded bits read per information bit for 
-$$ \text{Coverage}= \frac{c_r}{c_w}=\frac{\frac{|\text{READ}|}{|\text{DATA}|}}{\frac{|\text{SEQ}|}{|\text{DATA}|}} = \frac{|\text{READ}|}{|\text{SYNTH}|}$$
+
 
 ## Rate
 
