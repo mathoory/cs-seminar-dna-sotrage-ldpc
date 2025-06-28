@@ -1,3 +1,7 @@
 .reveal .slide-logo {
     max-height: 0.65em !important;
  }
+
+.small-math {
+    font-size: 80%;
+}
