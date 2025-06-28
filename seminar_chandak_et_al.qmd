@@ -1,4 +1,3 @@
-
 ---
 title: "Seminar on DNA Data Storage"
 subtitle: "Improved read/write cost tradeoff in DNA-based data storage using LDPC codes<br><br>Shubham Chandak, Kedar Tatwawadi, Billy Lau, Jay Mardia, Matthew Kubit, Joachim Neu, Peter Griffin, Mary Wootters, Tsachy Weissman, Hanlee J<br>(2019)<br><br>Presented by: Atar Ron and Mattan Hoory"
@@ -20,7 +19,6 @@ format:
 
 revealjs-plugins:
   - simplemenu
-
 ---
 
 ## Introduction {data-name="Intro"}
@@ -65,20 +63,34 @@ Since the cost of write and cost of read are strongly correlated, this paper aim
 
 :::
 
----
 
+## Cost of Read and Write
 
-### Cost of Read, Cost of Write, and Coverage {data-name="Theoretical bounds"}
+* **Cost Of Write**
+  Average number of encoded bits synthesized per information bit:
 
-* **Cost Of Write $c_w$** — Average number of encoded bits synthesized per information bit: $\frac{\text{|SYN}|}{|\text{DATA}|}$  
-* **Cost of Read $c_r$** — Average number of bits read per information bit: $\frac{\text{|READ}|}{|\text{DATA}|}$
-
-* **Coverage** — Average number of bits read per **synthesized** bit:  
   $$
-  \text{Coverage}= \frac{|\text{READ}|}{|\text{SYN}|}=\frac{\frac{|\text{READ}|}{|\text{DATA}|}}{\frac{|\text{SYN}|}{|\text{DATA}|}}=\frac{c_r}{c_w}
+  c_w = \frac{|\text{SYN}|}{|\text{DATA}|}
   $$
 
----
+* **Cost of Read**
+  Average number of bits read per information bit:
+
+  $$
+  c_r = \frac{|\text{READ}|}{|\text{DATA}|}
+  $$
+
+## Coverage {.smaller}
+
+* **Coverage**
+  Average number of bits read per synthesized bit:
+
+  $$
+  \text{Coverage} = \frac{|\text{READ}|}{|\text{SYN}|}
+  = \frac{\frac{|\text{READ}|}{|\text{DATA}|}}{\frac{|\text{SYN}|}{|\text{DATA}|}}
+  = \frac{c_r}{c_w}
+  $$
+
 
 ### Is Coverage a Good Metric?
 
@@ -91,27 +103,30 @@ Since the cost of write and cost of read are strongly correlated, this paper aim
 ---
 
 ## Example
+We can define the parameters of a system as found once all data has been decoded successfully.
 
 <span style="font-size:0.9em">Suppose we compare two storage systems with the following properties:</span>
 
-| System        | Write Cost = $c_w$ | Read Cost = $c_r$ | Coverage = $c_r/c_w$ |
-|---------------|---------------------|--------------------|------------------------|
-| **System A**  | 4                   | 12                 | 3                   |
-| **System B**  | 2                   | 10                 | 5                   |
+| System        | $c_w$ | $c_r$ | $\text{coverage} = c_r/c_w$ |
+|----------------|------------|----------------|------------------------|
+| A  | 4                   | 12                 | 3                   |
+| B  | 2                   | 10                 | 5                   |
 
 * <span style="font-size:0.9em">At first glance, System A has better (lower) coverage. Therefore, when evaluating the systems based on coverage only, we will prefer System A. </span> 
 
 
 ---
 
-## Example - cont.
+<!-- TODO (Atar) How to merge with previous slide (remove/merge/copy) -->
+
+## Example - cont. 
 
 * <span style="font-size:0.9em"> But, it is easy to see that System B reads fewer total bits per information bit (10 vs. 12), and also synthisizes significantly less DNA. So despite having higher coverage, System B is clearly more efficient overall. </span>
 
 **Conclusion:** <span style="font-size:0.9em">This example illustrates that relying solely on coverage can be misleading, particularly when comparing systems with varying write costs. A more meaningful comparison is to evaluate the actual read and write costs per information bit.</span>  
 <br>
 
-**Important Note:** <span style="font-size:0.9em">Coverage represents the average number of times a strand is observed in the sampled reads. We'll refer back to this concept later on.</span>
+**Important Note:** <span style="font-size:0.9em">We can also define coverage at the strand level: the average number of times a strand is observed in the sampled reads. We'll refer back to this concept later on.</span>
 
 
 ---
@@ -128,6 +143,8 @@ Since the cost of write and cost of read are strongly correlated, this paper aim
 
 
 ---
+
+<!-- TODO: (Atar): Visualize the notations -->
 
 ### Model Definition {data-name="Theoretical Bounds"}
 
@@ -166,6 +183,8 @@ $$
 
 ---
 
+<!-- TODO(Atar): Can mention (should not go too deep!) about the multinomial approximation -->
+
 ### Why Poisson? {data-name="Theoretical Bounds"}
 
 - <span style="font-size:0.8em">In the paper, the authors assume that each of the $n \cdot c_r$ sequenced strands is sampled independently and uniformly at random from the $n \cdot c_w$ synthesized strands.</span>
@@ -175,27 +194,32 @@ $$
 
 # Communication and Information Basics {data-name="Theoretical Bounds"}
 
+::: {.notes}
+- We have shown that the cost of read and cost of write are closely related, and that the coverage is not a good metric to evaluate the tradeoff between them.
+- To understand how, we need to understand the theoretical foundations of communication and information theory.
+:::
 ---
 
 ## What is a Channel? {data-name="Theoretical Foundations"}
 
 A **channel** is a mathematical model used in information theory to describe how information is transmitted from a sender to a receiver.
 
-- Input: a message of n bits.
-- Output: a possibly altered version of the message
+- Input $X$: a message of n bits.
+- Output $Y$: a possibly altered version of the message
 
 The channel introduce **noise**, leading to errors or loss.
 
-- A BEC (binary erasure channel) is a channel where each transmited bit is erasured with probability $\varepsilon$.
+
 
 ---
 
-## Binary Erasure Channel (BEC) 
+## Example: Binary Erasure Channel (BEC) 
+- BEC is a channel where each transmitted bit is erased with probability $\varepsilon$.
 
 - Input: $n$ bits from $\{0, 1\}$.
 - Output: $n$ bits from $\{0, 1,?\}$, where $?$ denotes an erasure.
 
-Each bit is either recieved correctly or erased with probability $\varepsilon$.
+Each bit is either received correctly or erased with probability $\varepsilon$.
 
 ![](assets/BEC_example.PNG){width=300px height=300px fig-align="center"}
 
@@ -209,8 +233,7 @@ $$
 H(X) = -\sum_{i=1}^n p_i \log_2 p_i
 $$
 
-- The entropy is always between 0 and 1:  
-  $0 \leq H(X) \leq 1$. 
+- The entropy is always between 0 and 1: $$0 \leq H(X) \leq 1$$
 - Higher entropy means more uncertainty.
 - Lower entropy means the variable is more predictable.
 
@@ -228,7 +251,7 @@ $$
 
 ---
 
-## Capacity of a Binary Erasure Channel (BEC)
+## Capacity of a BEC
 
 <span style="font-size:0.7em"> Assume a bit $X\sim\mathrm{Bern}\bigl(\tfrac12\bigr)$ and a Binary Erasure Channel with erasure probability $\varepsilon$. Let $Y$ be the output of the channel. Then:</span>
 
@@ -249,6 +272,8 @@ $$
 - <span style="font-size:0.7em"> This holds because when the output is “?”, then $P(X=1)=P(X=0)=0.5$, which is a state of maximum uncertainty. On the other hand, when the output is 0 or 1, the input is known with maximal certainty by the definition of BEC.</span>
 
 ---
+
+<!-- TODO(Mattan): Add hidden slide with mutual information as expectation of the PMI -->
 
 ## Capacity of a Binary Erasure Channel (BEC)
 **<span style="font-size:1.1em">Mutual information </span>** 
@@ -287,13 +312,14 @@ $$
 
 ---
 
-## Capacity of a Binary Erasure Channel (BEC)
+## Capacity of a Binary Erasure Channel (BEC) {.smaller}
 **<span style="font-size:1.1em">Capacity - cont.</span>**  
 
 - The maximum mutual information over all input distributions represents the most information the output can infer about the input through the channel.
 
 - This means that up to this rate, information can be transmitted and decoded reliably. No other input distribution can achieve a higher reliable information rate since it's maximal. 
-- apperantly, the mutual information of the random variable $X$ and and it's output $Y$ that we previously examined, is maximal among input distributions. Since $I(X;Y)=1-\varepsilon$ then $C=1-\varepsilon$.
+- apperantly, the mutual information of the random variable $X$ and and it's output $Y$ that we previously examined, is maximal among input distributions. 
+- Since $I(X;Y)=1-\varepsilon$ then $C=1-\varepsilon$.
 
 ---
 
@@ -302,7 +328,7 @@ $$
 
 - In coding theory, the **rate** \( R \) measures how much **actual information** is transmitted **per channel use**.
 
-- Recall that the read cost $c_w$ is $\frac{|\text{SYN}|}{|\text{DATA}|}. Therefore:
+- Recall that the write cost $c_w$ is $\frac{|\text{SYN}|}{|\text{DATA}|}$. Therefore:
 $$
 1/c_w=\frac{|\text{DATA}|}{|\text{SYN}|}= R
 $$
@@ -311,7 +337,7 @@ $$
 
 ---
 
-## Why Must the Rate Be ≤ Capacity?
+## Why Must the Rate Be ≤ Capacity? {.smaller}
 
 - Recall that the **channel capacity** $C$ represents the **maximum number of information bits per symbol** that can be decoded reliably.
 
@@ -322,22 +348,30 @@ $$
 
 - Therefore, to achieve **reliable communication**, it is necessary that $R\leq C$.
 
+- According to Shannon's theorem, this is a fundamental limit of communication systems, and according to the Noisy-Channel Coding Theorem, it is achievable with the right coding scheme.
+
 ---
 
 ## Numerical Example
 Assume we have a BEC with $\varepsilon=0.6$ and an encoder with $c_w=2$.
 
 - $R=\frac{1}{c_w}=\frac{1}{2}$.
-- $C=1-\varepsilon = 1-0.6=0.4
-- It holds that $R=0.5>0.4
+- $C=1-\varepsilon = 1-0.6=0.4$
+- It holds that $R=0.5>0.4$
 - Therefore, in this model, the data might not be decoded correctly, or might miss some information.
 
 ---
 
-## Recap
-- The storage model discussed so far is composed on $n*c_w$ strands that are synthesized, and $n*c_r$ strands that are sampled from a poisson distributed data.
+## Binary Symmetric Channel (BSC)
+- A Binary Symmetric Channel (BSC) is a channel where each bit is flipped with probability $\varepsilon$.
+- The difference between BSC and BEC is that in BSC, the output is always a bit (0 or 1), while in BEC, the output can also be an erasure symbol (?). (We do not know where the erasure occurred, but we know that it did occur).
 
-- Then, the data is transmited through a Binary Simetric Channel (BSC) with substitution rate $\varepsilon$.
+<!-- TODO(ATAR): Add an image -->
+
+## Recap
+- The storage model discussed so far is composed on $nc_w$ strands that are synthesized, and $nc_r$ strands that are sampled from a poisson distributed data.
+
+- Then, the data is transmited through a Binary Symmetric Channel (BSC) with substitution rate $\varepsilon$.
 
 - In a Binary Erasure Channel (BEC), the capacity of the channel must be greater or equal to the rate of the code. 
 
@@ -347,7 +381,7 @@ Assume we have a BEC with $\varepsilon=0.6$ and an encoder with $c_w=2$.
 
 ## The Case $\varepsilon = 0$
 
-- When $varepsilon = 0$, there are **no sequencing errors**, so each read is error-free.
+- When $\varepsilon = 0$, there are **no sequencing errors**, so each read is error-free.
 
 - In this case, each DNA strand is sampled independently, and the number of times a strand appears among the reads follows a **Poisson distribution** with mean $\lambda = \frac{c_r}{c_w}$
 
@@ -359,7 +393,7 @@ Assume we have a BEC with $\varepsilon=0.6$ and an encoder with $c_w=2$.
 
 - Thus, the channel can be modeled as a **Binary Erasure Channel (BEC)** where the erasure probability is $\varepsilon = e^{-c_r / c_w}$.
 
-- Since the capacity of the BEC nust be greater or equal to the rate of the code, we get that: 
+- Since the capacity of the BEC must be greater or equal to the rate of the code, we get that: 
 
 $$
 R=\frac{1}{c_w}\leq 1-e^{-\frac{c_r}{c_w}}= C
@@ -375,13 +409,16 @@ $$
 
 
 ## The case $\epsilon \neq 0$ 
+
+<!-- TODO(Atar): Visual example -->
+
 - Since now the reads might have substitution errors, each bit that is sampled is transmitted through a BSC with error probability $\varepsilon$.
 
 - Recall that it is assumed that the index of each strand remains intact, and that each strand is sampled $k$ times, where $k$ is $Poisson(\frac{c_r}{c_w})$ distributed.
 
 - Assume that for each bit in each strand, we are given a tuple ($k_0,k_1$) that indicates how how many times the bit was sampled as 0 and 1, consecutively. Note that $k_0+k_1=k$.
 
-- The probability that the samples of the bit are ($k_0,k_1$) giveb that the bit has value 0 is:
+- The probability that the samples of the bit are ($k_0,k_1$) given that the bit has value 0 is:
 
 ---
 
@@ -393,12 +430,14 @@ $$
 
 * the term ${k_0+k_1\choose k_1} (1-\varepsilon)^{k_0}\varepsilon^{k_1}$ is the binomial probability that there are $k_1$ errors out of $k_0+k_1$ samples. 
 
-* The authors did not elaborate on how they ferived the lower bound on $c_r$ using this probability.
+* The authors did not elaborate on how they ferived the lower bound on $c_r$ using this probability, it was achieved by numerical calculations.
+
+<!-- TODO(Atar): mention that it is no tight bound -->
 
 ## $c_r$ vs $c_w$: Theoretical bounds 
-- This graph demonstrates the lower bounds of the cases $\varepsilon=0$ and $\varepsilon=0.5$.
+- This graph demonstrates the lower bounds of the cases $\varepsilon=0$ and $\varepsilon=0.5%$.
 
-- The authors chose $\varepsilon=0.5$ because this is the substitution probability of illumina sequending. 
+- The authors chose $\varepsilon=0.5%$ because this is the substitution probability of illumina sequencing.
 
 ![](assets/Graph_1.PNG){width=550px height=450px fig-align="center"}
 
@@ -419,6 +458,8 @@ $$
 
 ## Inner/Outer Code Separation
 
+<!-- TODO(Atar): Visualize the strategy -->
+
 - The inner/outer code strategy is composed of 2 codes:
 
   * An outter code that is applied on a segemnt of information. This code handles erasure errors that might occur.
@@ -432,7 +473,7 @@ $$
 
 
 ## Single large block code
-
+<!-- TODO(Atar): TBD -->
 
 
 ## $c_r$ vs $c_w$: Simulation bounds (Separated/Large block) 
@@ -676,6 +717,8 @@ instead of partitioning the data into distinct parts, we can use overlapping pai
 
 - In the 1960s, Robert Gallager introduced a groundbreaking approach for this challenge — now known as LDPC codes (Low-Density Parity-Check codes).
 
+<!-- TODO(Atar): Visualize? -->
+
 ---
 
 ## Density and the Role of Overlap
@@ -689,15 +732,16 @@ instead of partitioning the data into distinct parts, we can use overlapping pai
 
 
 
+<!-- TODO(Atar) encode + bit flip decode -->
 
 
 ## LDPC Theory
 - Tanner graphs and parity check matrices $H$, $G$ (generation matrix)
 
-## LDPC - Encoding Algorithm
+## LDPC - Encoding "Algorithm"
 
-## LDPC - Decoding Algorithm 
-### Gallager’s bit-flipping algorithm
+## LtDPC - Decoding Algorithm 
+### Gallager’s bit-flipping algorihm
   - Gallager’s bit-flipping algorithm (BSC)
 
 ## LDPC Decoding: Belief propagation algorithm
