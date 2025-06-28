@@ -12,16 +12,21 @@ format:
     logo: assets/CS_LOGO.jpg
     footer: 'DNA Data Storage - 02360801 - Spring 2025'
     toc: true
+    toc-depth: 1
     simplemenu:
         flat: true
         barhtml:
             header: "<div class='menubar'><ul class='menu'></ul><div>"
-        scale: 0.67
+        scale: 0.42
 
 revealjs-plugins:
   - simplemenu
 ---
-## Intro {data-name="Intro"}
+::: {.center}
+# 1 Introduction & Context {data-name="Intro"}
+:::
+
+## Context & Background
 ![](assets/publication.png)
 <br>of the most important problems in DNA data storage is the cost of writing and reading DNA.
 
@@ -43,7 +48,9 @@ revealjs-plugins:
 
 <!-- (Maybe give a numerical example?), add diagram -->
 
-## Communiaction and Information Basics {data-name="Theoretical bounds"}
+::: {.center}
+# 2 Communication and Information 101 {data-name="Theory"}
+:::
 
 ## Theory of communication 
 - define a Channel 
@@ -52,7 +59,7 @@ revealjs-plugins:
 <!-- TODO: Diagrams -->
 
 ## Cost of read and write
-* $c_w$ - average number of encoded bits synthesized per information bit
+* $c_w$ - average number of encoded bits synthesized per information bit.
 * $c_r$ - average number of encoded bits read per information bit for 
 $$ \text{Coverage}= \frac{c_r}{c_w}=\frac{\frac{|\text{READ}|}{|\text{DATA}|}}{\frac{|\text{SEQ}|}{|\text{DATA}|}} = \frac{|\text{READ}|}{|\text{SYNTH}|}$$
 
@@ -94,6 +101,9 @@ Assume $X\sim\mathrm{Bern}\bigl(\tfrac12\bigr)$ and a Binary Erasure Channel wit
 <!-- TODO: Numerical Example -->
 ## Rate < Capacity
 
+::: {.center}
+# 3 Theoretical bounds {data-name="Bounds"}
+:::
 
 ## The case $\epsilon = 0$ 
 <!-- TODO: -->
@@ -103,9 +113,11 @@ Assume $X\sim\mathrm{Bern}\bigl(\tfrac12\bigr)$ and a Binary Erasure Channel wit
 
 
 ## $c_r$ vs $c_w$: Theoretical bounds 
-<!-- TODO(Matan): Figure4  with only orange and blue plots -->
+<!-- TODO(Matan)s: Figure4  with only orange and blue plots -->
 
-# Comparison of coding strategies {data-name="Strategies"}
+::: {.center}
+# 4 Comparison of coding strategies {data-name="Encoding Strategies"}
+:::
 
 ## Inner/Outer Code Separation
 <!-- TODO(Matan): Animation -->
@@ -116,8 +128,11 @@ Assume $X\sim\mathrm{Bern}\bigl(\tfrac12\bigr)$ and a Binary Erasure Channel wit
 ## $c_r$ vs $c_w$: Simulation bounds (Separated/Large block) 
 <!-- TODO: Figure 4 with all plots -->
 
+::: {.center}
+# 4 Low Density Parity Check (LDPC) {data-name="LDPC"}
+:::
 
-## LDPC {data-name="LDPC"}
+## LDPC 
 LDPC codes are a class of linear block error correction codes. Originally invented by Gallager in the 1960s, yet has become into wide use only in recent decades. They are used in cellular communications, Wi-Fi, video broadcasts, and more today.
 
 ## LDPC Example 
@@ -126,7 +141,13 @@ LDPC codes are a class of linear block error correction codes. Originally invent
 <!-- TODO: Do like the video -->
 
 ## LDPC Theory
-- Tanner graphs and parity check matrices $H$, $G$ (generation matrix)
+A low-density parity check (LDPC) code is a linear block code whose
+parity check matrix has a small number of one’s.
+<!-- MATRIX -->
+The number of 1’s in an LDPC code’s matrix grows linearly with the size N.
+The number of 1’s in a regular-density matrix grows as N·(M-N)
+
+- Tanner graphs and parity check matrices $H$, $G$ (generation matrix) (S05-LDPC Lecture 1.pdf slide 15)
 
 ## LDPC - Encoding Algorithm
 
@@ -136,29 +157,361 @@ LDPC codes are a class of linear block error correction codes. Originally invent
 
 ## LDPC Decoding: Belief propagation algorithm
 
-## Encoding Schema
-::: {.incremental}
-- Reads
-- Addressing index+BCH
-- MSA 
-- Sync Markers
-- LDPC
+::: {.center}
+# 5 Encoding/Decoding Schema {data-name="Schema"}
 :::
 
-## Experimental results {data-name="Experimental results"}
-::: {.incremental}
-- Figure 8
-- Error profiles (4.1.1)
-- Deviation from poisson distribution in number of reads (4.1.1)
-- Probability of decoding failure (4.1.5)
-- Stress testing (4.1.6)
-- Performance and Scalability (4.1.7)
-- Simulations based on [github](https://github.com/shubhamchandak94/LDPC_DNA_storage) code
-- Simulation results (Graph 4)
-- Idea (probably not): Implement a small subset of the simulation and explain 1
+## 3 challenges in using DNA for data storage
+| **Error Type**              | **Solution**                                                               |
+|----------------------------|---------------------------------|
+| 1. Substitution errors      | • LDPC codes                                                                 |
+| 2. Unordered reads          | • Addressing index<br>• BCH codes                                            |
+| 3. Insertion/deletion errors | • Convert to substitution errors:<br> • Sync markers<br> • MSA (via indexed clusters) |
+
+## Synchronization Marker
+
+- **Problem:** Insertions and deletions ("indels") shift the alignment of bases, making decoding difficult.
+- If a read has unexpected length (due to indels), we try to **recover the marker** using Multiple Sequence Alignment (MSA).
+- If the marker is located:
+  - We **split** the read at the marker.
+  - Retain only the expected-length portion.
+  - Mark the rest as **erasures**.
+- These erasures are then passed into the LDPC decoder.
+- In simulations: 10% improvement in the reading cost while having little impact (2-3%) on the writing cost.
+
+::: {.r-vstack style="align-items:center; justify-content:center; gap:6px;"}
+
+<!-- ─────────── 1 ►  COLOURED BAR  ─────────── -->
+::: {.r-hstack style="align-items:center; justify-content:center;"}
+
+::: {data-id="payloadL"
+     style="background:#ff9f1c;  width:200px; height:60px;
+            color:#fff; font-weight:bold;
+            display:flex; align-items:center; justify-content:center;"}
+Payload
 :::
 
-## Conclusions {data-name="Conclusion"}
+::: {data-id="sync"
+     style="background:#38b000;  width:100px; height:60px;
+            color:#fff; font-weight:bold;
+            display:flex; align-items:center; justify-content:center;"}
+AGT
+:::
+
+::: {data-id="payloadR"
+     style="background:#ff9f1c;  width:200px; height:60px;
+            color:#fff; font-weight:bold;
+            display:flex; align-items:center; justify-content:center;"}
+Payload
+:::
+:::
+:::
+
+## encoding a single binary file {auto-animate=true auto-animate-easing="ease-in-out"}
+
+- File size: $192_\text{KB} = 192 \times 1000_\text{B} = 1 536 000_\text{bits}$
+- Encoding steps from: 
+[https://github.com/shubhamchandak94/LDPC_DNA_storage](https://github.com/shubhamchandak94/LDPC_DNA_storage/blob/master/dna_storage.py)
+- KB is decimal (1000 bytes = 1 KB), not binary (1024 bytes = 1 KiB)
+
+::: {.r-hstack style="align-items: center; justify-content: center;"}
+::: {data-id="strand1"  style="background:#ff9f1c; width:calc(700px/12); height:60px;"}
+:::  
+::: {data-id="strand2"  style="background:#ff9f1c; width:calc(700px/12); height:60px;"}
+:::  
+::: {data-id="strand3"  style="background:#ff9f1c; width:calc(700px/12); height:60px;"}
+:::  
+::: {data-id="strand4"  style="background:#ff9f1c; width:calc(700px/12); height:60px;"}
+:::  
+::: {data-id="strand5"  style="background:#ff9f1c; width:calc(700px/12); height:60px;"}
+:::  
+::: {data-id="strand6"  style="background:#ff9f1c; width:calc(700px/12); height:60px;"}
+:::  
+:::
+
+<!-- ------------- SLIDE 2 ------------- -->
+## Large block LDPC encoding {auto-animate=true auto-animate-easing="ease-in-out"}
+
+- LDPC data-block size (`LDPC_dim=256K`): $256 000_\text{bits}$
+- Number of data blocks: $\frac{1 536 000}{256 000} = 6$
+- Added parity bits (`LDPC_alpha=0.5`): For each data block, we add $128 000_\text{bits}$ of parity bits. 
+- Encoded bits per block: $$256 000_\text{bits} + 128 000_\text{bits} = 384 000_\text{bits}$$
+
+::: {.r-hstack style="align-items:center; justify-content:center;"}
+
+<!-- container keeps the total width at exactly 700 px -->
+::: {.r-hstack style="width:700px; gap:0px;"}
+
+<!-- 6 orange data pieces -->
+::: {data-id="strand1"  style="background:#ff9f1c; width:calc(700px/12); height:60px;"}
+:::  
+::: {data-id="strand2"  style="background:#ff9f1c; width:calc(700px/12); height:60px;"}
+:::  
+::: {data-id="strand3"  style="background:#ff9f1c; width:calc(700px/12); height:60px;"}
+:::  
+::: {data-id="strand4"  style="background:#ff9f1c; width:calc(700px/12); height:60px;"}
+:::  
+::: {data-id="strand5"  style="background:#ff9f1c; width:calc(700px/12); height:60px;"}
+:::  
+::: {data-id="strand6"  style="background:#ff9f1c; width:calc(700px/12); height:60px;"}
+:::  
+
+<!-- 6 blue parity pieces -->
+::: {data-id="strand7"  style="background:#1982c4; width:calc(700px/12); height:60px;"}
+:::  
+::: {data-id="strand8"  style="background:#1982c4; width:calc(700px/12); height:60px;"}
+:::  
+::: {data-id="strand9"  style="background:#1982c4; width:calc(700px/12); height:60px;"}
+:::  
+::: {data-id="strand10" style="background:#1982c4; width:calc(700px/12); height:60px;"}
+:::  
+::: {data-id="strand11" style="background:#1982c4; width:calc(700px/12); height:60px;"}
+:::  
+::: {data-id="strand12" style="background:#1982c4; width:calc(700px/12); height:60px;"}
+:::  
+
+:::
+:::
+
+<!-- ───────────────── SLIDE 3 ───────────────── -->
+## Segment and  map to DNA {auto-animate=true auto-animate-easing="ease-in-out"}
+
+- Binary mapping: $00 \to A$, $01 \to C$, $10 \to G$, $11 \to T$
+- Bits per oligo (`payload size=84bp`): $84 \times 2_\text{bits} = 168_\text{bits}$
+- Number of oligos per block: $$\frac{\text{payload bits}}{\text{bits per oligo}}=\frac{384 000_\text{bits}}{168_\text{bits}} = 2285.71 \approx 2286_\text{oligos}$$
+- Total number of oligos: $\text{blocks} \times \text{oligos per block} = 6 \times 2286 = 13716$ (✔)
+
+::: {.r-hstack style="gap:60px;justify-content:center;"}
+
+<!-- ─────────── column 1 ─────────── -->
+::: {.r-vstack style="gap:10px;"}
+::: {data-id="strand1" style="background:#ff9f1c;width:230px;height:24px;border-radius:4px;"}
+:::
+::: {data-id="strand2" style="background:#ff9f1c;width:230px;height:24px;border-radius:4px;"}
+:::
+::: {data-id="strand3" style="background:#ff9f1c;width:230px;height:24px;border-radius:4px;"}
+:::
+::: {data-id="strand4" style="background:#ff9f1c;width:230px;height:24px;border-radius:4px;"}
+:::
+::: {data-id="strand5" style="background:#ff9f1c;width:230px;height:24px;border-radius:4px;"}
+:::
+::: {data-id="strand6" style="background:#ff9f1c;width:230px;height:24px;border-radius:4px;"}
+:::
+:::
+
+<!-- ─────────── column 2 ─────────── -->
+::: {.r-vstack style="gap:10px;"}
+::: {data-id="strand7"  style="background:#1982c4;width:165px;height:24px;border-radius:4px;"}
+:::
+::: {data-id="strand8"  style="background:#1982c4;width:165px;height:24px;border-radius:4px;"}
+:::
+::: {data-id="strand9"  style="background:#1982c4;width:165px;height:24px;border-radius:4px;"}
+:::
+::: {data-id="strand10" style="background:#1982c4;width:165px;height:24px;border-radius:4px;"}
+:::
+::: {data-id="strand11" style="background:#1982c4;width:165px;height:24px;border-radius:4px;"}
+:::
+::: {data-id="strand12" style="background:#1982c4;width:165px;height:24px;border-radius:4px;"}
+:::
+:::
+:::
+
+
+## Encoded oligo structure (/W Sync markers) {auto-animate=true auto-animate-easing="ease-in-out"}
+| Segment                             | bp         |
+| ----------------------------------- | ---------- |
+| BCH-protected index                 | $14_\text{bit} / 2 = 7_\text{bp}$      |
+| BCH redundancy      | $12_\text{bit} / 2 = 6_\text{bp}$       |
+| Sync marker (`AGT`)            | $3_\text{bp}$       |
+| **Payload** | $84_\text{bp}$      |
+| Primers                   | $2 \times 25_\text{bp}$       |
+| **Total**                            | **$150_\text{bp}$**  |
+
+::: {.r-vstack style="align-items:center; justify-content:center; gap:6px;"}
+
+<!-- ─────────── 1 ►  COLOURED BAR  ─────────── -->
+::: {.r-hstack style="align-items:center; justify-content:center;"}
+
+::: {data-id="primerL"
+     style="background:#6c757d;  width:100px; height:60px;
+            color:#fff; font-weight:bold;
+            display:flex; align-items:center; justify-content:center;
+            border-top-left-radius:6px; border-bottom-left-radius:6px;"}
+FW
+:::
+
+::: {data-id="indexECC"
+     style="background:#d90429;  width:200px; height:60px;
+            color:#fff; font-weight:bold;
+            display:flex; align-items:center; justify-content:center;"}
+Index + ECC
+:::
+
+::: {data-id="payloadL"
+     style="background:linear-gradient(135deg,
+                   #ff9f1c 0%,   /* orange in the upper-left corner   */
+                   #1982c4 100%);/* blue in the lower-right corner    */
+       width:200px; height:60px;
+       color:#fff; font-weight:bold;
+       display:flex; align-items:center; justify-content:center;"
+}
+Payload
+:::
+
+::: {data-id="sync"
+     style="background:#38b000;  width:100px; height:60px;
+            color:#fff; font-weight:bold;
+            display:flex; align-items:center; justify-content:center;"}
+AGT
+:::
+
+::: {data-id="payloadR"
+     style="background:linear-gradient(135deg,
+                   #ff9f1c 0%,   /* orange in the upper-left corner   */
+                   #1982c4 100%);/* blue in the lower-right corner    */
+       width:200px; height:60px;
+       color:#fff; font-weight:bold;
+       display:flex; align-items:center; justify-content:center;"
+}
+Payload
+:::
+
+::: {data-id="primerR"
+     style="background:#6c757d;  width:100px; height:60px;
+            color:#fff; font-weight:bold;
+            display:flex; align-items:center; justify-content:center;
+            border-top-right-radius:6px; border-bottom-right-radius:6px;"}
+REV
+:::
+:::
+
+<!-- ─────────── 2 ►  bp LABEL ROW  ─────────── -->
+::: {.r-hstack style="gap:0px; font-size:0.8em; font-weight:bold; color:#000;"}
+
+::: {data-id="primerL_lbl"   style="width:100px; text-align:center;"}
+25 bp
+:::
+
+::: {data-id="indexECC_lbl"  style="width:200px; text-align:center;"}
+6+7 bp
+:::
+
+::: {data-id="payloadL_lbl"  style="width:200px; text-align:center;"}
+42 bp
+:::
+
+::: {data-id="sync_lbl"      style="width:100px; text-align:center;"}
+3 bp
+:::
+
+::: {data-id="payloadR_lbl"  style="width:200px; text-align:center;"}
+42 bp
+:::
+
+::: {data-id="primerR_lbl"   style="width:100px; text-align:center;"}
+25 bp
+:::
+:::
+:::
+
+## Encoding schema overview
+
+::: {.r-stack style="height:80vh; display:flex; flex-direction:column; justify-content:center; align-items:center;"}
+![](assets/encoding.png)
+:::
+
+## Decoding schema overview
+<!-- TODO(Mattan) -->
+
+
+::: {.center}
+# 6 Experimental results {data-name="Results"}
+:::
+
+## Write/read costs (Fig. 8 / Table 1) {.smaller}
+
+<!-- Table block -->
+<div style="position:relative;">
+
+| Exp. No. | LDPC Redundancy | File Size | No. of Oligonucleotides | Normalized Coverage Variance | Writing Cost (bases/bit) | Reading Cost (bases/bit) |
+|----------|------------------|-----------|--------------------------|-------------------------------|---------------------------|---------------------------|
+| 1        | 50%              | 160 KB    | 11,710                   | 1.97                          | 0.91                      | 2.73                      |
+| 2        | 10%              | 224 KB    | 12,026                   | 1.57                          | 0.67                      | 3.82                      |
+| 3        | 50%              | 192 KB    | 13,716                   | 3.36                          | 0.89                      | 3.45                      |
+| 4        | 30%              | 192 KB    | 11,892                   | 3.53                          | 0.78                      | 4.46                      |
+| 5        | 10%              | 192 KB    | 10,062                   | 3.19                          | 0.66                      | 8.11                      |
+
+<!-- Floating figure -->
+<div class="fragment"
+     style="position:absolute; top:50px; right:-60px; width:790px; z-index:10;">
+  <img src="assets/figure8.png" style="width:150%;">
+</div>
+
+</div>
+
+
+## Error profile (Fig. 9)
+::: {.r-stack style="height:80vh; display:flex; flex-direction:column; justify-content:center; align-items:center;"}
+![](assets/figure9.png)
+:::
+
+## Coverage profile (Fig. 10)
+::: {.r-stack style="height:80vh; display:flex; flex-direction:column; justify-content:center; align-items:center;"}
+![](assets/figure10.png)
+:::
+
+
+## Indel correction heuristics (Table. 4)
+<!-- | LDPC Redundancy | Writing Cost | Reading Cost (1 Indel) | Reading Cost (0 Indels) |
+|------------------|---------------|--------------------------|--------------------------|
+| 50%              | 0.89          | 3.45                     | 3.58                     |
+| 30%              | 0.78          | 4.46                     | 4.73                     |
+| 10%              | 0.66          | 8.11                     | 8.57                     | -->
+
+<div style="center; position:relative;">
+![](assets/table4.png){fig-align="center" width="80%"}
+</div>
+
+- Attempting to correct single indel with a BCH code
+- This step is able to correct 5-10% additional indexes.
+
+## Probability of dec. failure (Fig. 11)
+::: {.r-stack style="height:80vh; display:flex; flex-direction:column; justify-content:center; align-items:center;"}
+![](assets/figure11.png)
+:::
+
+## Stress testing
+
+* Simulated **6% total error** (2% sub / 2% del / 2% ins)
+* Added **15% random reads** (unaligned noise)
+* **224 KB** file, **50% LDPC**, BCH (3-error correction)
+* Increased LDPC decoder threshold to **10%**
+* **Write cost**: 1.07 bases/bit
+* **Decoding succeeded** at **10.5 bases/bit read cost**
+
+
+::: {.center}
+# 7 Concluding Remarks {data-name="Conclusions"}
+:::
+
+## Conclusions
+
+* Achieves **better read/write cost tradeoff** than prior work
+* Combines **LDPC codes** with **heuristics** for indel correction
+* Insights may help improve **bioinformatics tools** and **error models**
+
+## Future Work
+
+* Use **channel-optimized LDPC** or **marker codes**
+* Extend to **nanopore sequencing** (high indel rates)
+* Improve **index error correction efficiency**
+
+## Limitations
+* **Random access** No range queries or selective decoding
+* **Error model** Assumes independent errors, which may not hold in practice
+* **Relying on simulations** for performance evaluation, which may not fully capture real-world complexities
+
+
 
 ## Crafting the Presentation: Tools
 - [`Quarto`](https://quarto.org/): markdown-based authoring system that supports multiple output formats.
