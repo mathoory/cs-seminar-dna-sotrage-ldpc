@@ -25,17 +25,23 @@ revealjs-plugins:
 
 In DNA-based data storage, there are two critical challenges:
 
+::: {.incremental}
 
 - **Write cost** — how much synthetic DNA we need to store one bit of information  
 - **Read cost** — how many sequencing reads are needed to reliably recover that bit
 
 
-These two costs are closely related, and thus, one of the most important problems in DNA data storage is finding an effective tradeoff between them.
+<span class= "fragment"> These two costs are closely related, and thus, one of the most important problems in DNA data storage is finding an effective tradeoff between them. </span>
 
+<div style="text-align: center;">
+  <img src="assets/write_read_proc.PNG" width="600px" height="300px" class="fragment">
+</div>
+
+:::
 
 ---
 
-### Discussion Questions
+## Discussion Questions
 
 ::: {.incremental}
 
@@ -50,7 +56,7 @@ These two costs are closely related, and thus, one of the most important problem
 
 ---
 
-### Main Goals
+## Main Goals
 
 ::: {.incremental}
 
@@ -63,8 +69,9 @@ Since the cost of write and cost of read are strongly correlated, this paper aim
 
 :::
 
+# Theoretical Bounds {data-name="Theoretical Bounds"}
 
-## Cost of Read and Write
+## Cost of Read and Write 
 
 * **Cost Of Write**
   Average number of encoded bits synthesized per information bit:
@@ -80,10 +87,9 @@ Since the cost of write and cost of read are strongly correlated, this paper aim
   c_r = \frac{|\text{READ}|}{|\text{DATA}|}
   $$
 
-## Coverage {.smaller}
+## Coverage
 
-* **Coverage**
-  Average number of bits read per synthesized bit:
+* **Coverage**- Average number of bits read per synthesized bit:
 
   $$
   \text{Coverage} = \frac{|\text{READ}|}{|\text{SYN}|}
@@ -92,19 +98,21 @@ Since the cost of write and cost of read are strongly correlated, this paper aim
   $$
 
 
-### Is Coverage a Good Metric?
+::: {.incremental}
+- Coverage has been widely used in prior work to estimate the efficiency of read/write tradeoffs in DNA-based storage systems. 
+<br> </span>
 
-* Coverage has been widely used in prior work to estimate the efficiency of read/write tradeoffs in DNA-based storage systems. 
-<br>
-* It measures how many sequencing reads are made per synthesized bit — but is that the best way to evaluate system performance?
-<br>
-* We consider a simple example that demonstrates why coverage can be misleading.
+- It measures how many sequencing reads are made per synthesized bit — but is that the best way to evaluate system performance?
+<br></span>
 
+:::
 ---
 
-## Example
-We can define the parameters of a system as found once all data has been decoded successfully.
+## Is Coverage a Good Metric?
 
+<span style="font-size:0.9em">We consider the following example that demonstrates why coverage can be misleading.</span><br>
+
+### Example
 <span style="font-size:0.9em">Suppose we compare two storage systems with the following properties:</span>
 
 | System        | $c_w$ | $c_r$ | $\text{coverage} = c_r/c_w$ |
@@ -112,17 +120,27 @@ We can define the parameters of a system as found once all data has been decoded
 | A  | 4                   | 12                 | 3                   |
 | B  | 2                   | 10                 | 5                   |
 
-* <span style="font-size:0.9em">At first glance, System A has better (lower) coverage. Therefore, when evaluating the systems based on coverage only, we will prefer System A. </span> 
+* <span style="font-size:0.9em">**Note:** In this example, we assume that both the read cost and the coverage values were measured after decoding all the sampled strands.</span>
+
+
+
+## Example - cont. 
+
+| System        | $c_w$ | $c_r$ | $\text{coverage} = c_r/c_w$ |
+|----------------|------------|----------------|------------------------|
+| A  | 4                   | 12                 | 3                   |
+| B  | 2                   | 10                 | 5                   |
+
+* <span style="font-size:0.9em">At first glance, System A has better (lower) coverage. Therefore, when evaluating the systems based on coverage only, we will prefer System A. </span>  
+
+
+* <span style="font-size:0.9em"> But, it is easy to see that System B reads fewer total bits per information bit (10 vs. 12), and also synthisizes significantly less DNA. So despite having higher coverage, System B is clearly more efficient overall. </span>
 
 
 ---
 
-<!-- TODO (Atar) How to merge with previous slide (remove/merge/copy) -->
-
 ## Example - cont. 
-
-* <span style="font-size:0.9em"> But, it is easy to see that System B reads fewer total bits per information bit (10 vs. 12), and also synthisizes significantly less DNA. So despite having higher coverage, System B is clearly more efficient overall. </span>
-
+<br>
 **Conclusion:** <span style="font-size:0.9em">This example illustrates that relying solely on coverage can be misleading, particularly when comparing systems with varying write costs. A more meaningful comparison is to evaluate the actual read and write costs per information bit.</span>  
 <br>
 
@@ -131,7 +149,7 @@ We can define the parameters of a system as found once all data has been decoded
 
 ---
 
-### Notations
+## Model Notations
 
 - $n$ – Number of strands.  
 - $L$ – Strand length.  
@@ -142,57 +160,89 @@ We can define the parameters of a system as found once all data has been decoded
 - $\epsilon$ - Substitution error rate.
 
 
+## Model Definition {.nostretch}
+
+::: {.fragment data-fragment-index="1"}
+- <span style="font-size:0.8em">The storage system encodes $n$ information strands, each of length $L$. </span>
+:::
+
+::: {.fragment data-fragment-index="3"}
+- <span style="font-size:0.8em">To store the data with write cost $c_w$, the encoder synthesizes $n \cdot c_w$ strands of length $L$.</span>
+:::
+
+::: {.fragment data-fragment-index="5"}
+- <span style="font-size:0.8em"> To retrieve the data with read cost $c_r$, the decoder samples $n \cdot c_r$ strands of length $L$. </span>
+:::
+
+<!-- Images side-by-side and controlled with fragments -->
+<div style="margin-bottom: 200px;">
+  <img src="assets/model_process1.PNG" width="200" class="fragment" data-fragment-index="2">
+  <img src="assets/model_process2.PNG" width="350" class="fragment" data-fragment-index="4">
+  <img src="assets/model_process3.PNG" width="350" class="fragment" data-fragment-index="6">
+</div>
+
+
 ---
 
-<!-- TODO: (Atar): Visualize the notations -->
 
-### Model Definition {data-name="Theoretical Bounds"}
+## Model Definition - cont.
 
-- The storage system encodes $n$ information strands, each of length $L$.
-- To store the data with write cost $c_w$, the encoder synthesizes $n \cdot c_w$ strands of length $L$.
-- To retrieve the data with read cost $c_r$, the decoder samples $n \cdot c_r$ strands of length $L$.
+<!-- Final bullet -->
+- <span style="font-size:0.7em"> It is assumed, for simplicity, that the decoder has access to the index of each strand, and that deletion and insertion errors are ignored. We later explain how the authors overcame this in practice. </span>
 
-- It is assumed, for simplicity, that the decoder has access to the index of each strand. We later explain how the authors overcame this in practice.
+- <span style="font-size:0.7em"> The reads are subject to:</span>
 
----
+  - <span style="font-size:0.7em"> **Substitution errors** — each sampled strand is passed through a Binary Symmetric Channel (BSC) with bit-flip probability $\epsilon$. This simulates sequencing errors.</span>
+  - <span style="font-size:0.7em"> **Sampling variability** — the number of times each strand is sampled is random (Poisson-distributed).</span>
 
-### Model Definition - cont. {data-name="Theoretical Bounds"}
+![](assets/model_process4.PNG){width=500px height=180px fig-align="center"}
 
-- The reads are subject to:
-  - **Strand dropout** — some synthesized strands may never be sampled.
-  - **Substitution errors** — each sampled strand is passed through a Binary Symmetric Channel (BSC) with bit-flip probability $\epsilon$. This simulates sequencing errors.
-  - **Sampling variability** — the number of times each strand is sampled is random (Poisson-distributed).
-
-- For simplicity, the theoretical analysis ignores deletion and insertion errors. We later explain how the authors overcame those errors in practice.
 
 ---
 
-### Data Distribution {data-name="Theoretical Bounds"}
+## Data Distribution
 
-- <span style="font-size:0.8em">For the sake of the theoretical analysis, it is assumed that the sampled DNA strands follow a Poisson distribution.</span>
-- <span style="font-size:0.8em">Although the standard Poisson model does not account for synthesis or sequencing biases, it still provides significant insights into strand sampling behavior.</span>
+- <span style="font-size:0.7em">For the sake of the theoretical analysis, it is assumed that the sampled DNA strands follow a Poisson distribution.</span>
+- <span style="font-size:0.7em">Although the standard Poisson model does not account for synthesis or sequencing biases, it still provides significant insights into strand sampling behavior.</span>
 
 #### Poisson Recap:
-- <span style="font-size:0.8em">The Poisson distribution models the number of times an event occurs in a fixed interval, given a known average rate $\lambda$.</span>
-- <span style="font-size:0.8em">The probability mass function is given by:</span>
-  
+- <span style="font-size:0.7em">The Poisson distribution models the number of times an event occurs in a fixed interval, given a known average rate $\lambda$.</span>
+- <span style="font-size:0.7em">The probability mass function is given by:</span>
+
+:::{.small_math}  
 $$
 P(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}
 $$
----
 
----
+:::
 
-<!-- TODO(Atar): Can mention (should not go too deep!) about the multinomial approximation -->
+## Why Poisson?
 
-### Why Poisson? {data-name="Theoretical Bounds"}
+::: {.incremental}
 
-- <span style="font-size:0.8em">In the paper, the authors assume that each of the $n \cdot c_r$ sequenced strands is sampled independently and uniformly at random from the $n \cdot c_w$ synthesized strands.</span>
-- <span style="font-size:0.8em">Under this model, the number of times any particular strand is sampled follows a Poisson distribution with parameter $\lambda = \frac{c_r}{c_w} = \text{Coverage}$.</span>
-- <span style="font-size:0.8em">This is because coverage reflects the expected number of times each strand appears among the total sequenced reads.</span>
+- <span style="font-size:0.7em">In the paper, the authors assume that each of the $n \cdot c_r$ sequenced strands is sampled independently and uniformly at random from the $n \cdot c_w$ synthesized strands.
+
+- <span style="font-size:0.7em">This defines a **multinomial distribution** over the $n \cdot c_w$ strands (trials), where each trial has a selection probability of $\frac{1}{n \cdot c_w}$ per draw.
+
+- <span style="font-size:0.7em">When the number of strands is large then the individual selection probability of each strand is small.
+
+- <span style="font-size:0.7em"> Therefore, we can apply the **Poisson approximation to the multinomial**:</span>
+
+  <span style="font-size:0.7em">Each strand is sampled independently according to a $\text{Poisson}(\lambda)$ distribution, where:
 
 
-# Communication and Information Basics {data-name="Theoretical Bounds"}
+:::{.fragment .small_math}
+$$
+\lambda = \text{#Samples}*\text{Proability}= \frac{nc_r}{nc_w} = \frac{c_r}{c_w}
+$$
+
+:::
+
+:::
+
+
+
+# Communication and Information Basics
 
 ::: {.notes}
 - We have shown that the cost of read and cost of write are closely related, and that the coverage is not a good metric to evaluate the tradeoff between them.
@@ -214,28 +264,28 @@ The channel introduce **noise**, leading to errors or loss.
 ---
 
 ## Example: Binary Erasure Channel (BEC) 
-- BEC is a channel where each transmitted bit is erased with probability $\varepsilon$.
+- <span style="font-size:0.8em">BEC is a channel where each transmitted bit is erased with probability $\varepsilon$.
 
-- Input: $n$ bits from $\{0, 1\}$.
-- Output: $n$ bits from $\{0, 1,?\}$, where $?$ denotes an erasure.
+- <span style="font-size:0.8em">Input: $n$ bits from $\{0, 1\}$.</span>
+- <span style="font-size:0.8em">Output: $n$ bits from $\{0, 1,?\}$, where $?$ denotes an erasure.</span>
 
-Each bit is either received correctly or erased with probability $\varepsilon$.
+<span style="font-size:0.8em">Each bit is either received correctly or erased with probability $\varepsilon$.</span>
 
 ![](assets/BEC_example.PNG){width=300px height=300px fig-align="center"}
 
 
 ## Entropy
 
-- **Entropy** quantifies the uncertainty or randomness in a random variable.
-- Formally, if a discrete random variable $X$ takes values $x_1, \dots, x_n$ with probabilities $p_1, \dots, p_n$ , then:
+- <span style="font-size:0.8em">**Entropy** quantifies the uncertainty or randomness in a random variable. </span>
+- <span style="font-size:0.8em">Formally, if a discrete random variable $X$ takes values $x_1, \dots, x_n$ with probabilities $p_1, \dots, p_n$ , then:</span>
 
 $$
 H(X) = -\sum_{i=1}^n p_i \log_2 p_i
 $$
 
-- The entropy is always between 0 and 1: $$0 \leq H(X) \leq 1$$
-- Higher entropy means more uncertainty.
-- Lower entropy means the variable is more predictable.
+- <span style="font-size:0.8em">The entropy is always between 0 and 1: $$0 \leq H(X) \leq 1$$</span>
+- <span style="font-size:0.8em">Higher entropy means more uncertainty.</span>
+- <span style="font-size:0.8em">Lower entropy means the variable is more predictable.</span>
 
 ---
 
@@ -267,6 +317,7 @@ H(X \mid Y)
 &= \varepsilon
 \end{aligned}
 $$
+
 :::
 
 - <span style="font-size:0.7em"> This holds because when the output is “?”, then $P(X=1)=P(X=0)=0.5$, which is a state of maximum uncertainty. On the other hand, when the output is 0 or 1, the input is known with maximal certainty by the definition of BEC.</span>
@@ -326,7 +377,7 @@ $$
 
 ## What is the Code Rate?
 
-- In coding theory, the **rate** \( R \) measures how much **actual information** is transmitted **per channel use**.
+- In coding theory, the **rate** $R$ measures how much **actual information** is **transmitted per channel use**.
 
 - Recall that the write cost $c_w$ is $\frac{|\text{SYN}|}{|\text{DATA}|}$. Therefore:
 $$
@@ -341,10 +392,9 @@ $$
 
 - Recall that the **channel capacity** $C$ represents the **maximum number of information bits per symbol** that can be decoded reliably.
 
-- The **code rate** \( R \) reflects the **amount of information per channel symbol** that is being sent.
+- The **code rate** $R$ reflects the **amount of information per channel symbol** that is being transmitted.
 
-- If \( R > C \), then the encoder is injecting **more information** per symbol than the channel can reliably preserve —  
-  meaning **some information must be lost** or **decoded incorrectly**.
+- If $R > C$, then the encoder is injecting **more information** per symbol than the channel can reliably preserve — meaning **some information must be lost** or **decoded incorrectly**.
 
 - Therefore, to achieve **reliable communication**, it is necessary that $R\leq C$.
 
@@ -364,9 +414,10 @@ Assume we have a BEC with $\varepsilon=0.6$ and an encoder with $c_w=2$.
 
 ## Binary Symmetric Channel (BSC)
 - A Binary Symmetric Channel (BSC) is a channel where each bit is flipped with probability $\varepsilon$.
-- The difference between BSC and BEC is that in BSC, the output is always a bit (0 or 1), while in BEC, the output can also be an erasure symbol (?). (We do not know where the erasure occurred, but we know that it did occur).
+- The difference between BSC and BEC is that in BSC, the output is always a bit (0 or 1), while in BEC, the output can also be an erasure symbol (?). 
+- We do not know where the substitution occurred, but we know that it did occur.
 
-<!-- TODO(ATAR): Add an image -->
+![](assets/BSC.PNG){width=400px height=270px fig-align="center"}
 
 ## Recap
 - The storage model discussed so far is composed on $nc_w$ strands that are synthesized, and $nc_r$ strands that are sampled from a poisson distributed data.
@@ -383,13 +434,15 @@ Assume we have a BEC with $\varepsilon=0.6$ and an encoder with $c_w=2$.
 
 - When $\varepsilon = 0$, there are **no sequencing errors**, so each read is error-free.
 
-- In this case, each DNA strand is sampled independently, and the number of times a strand appears among the reads follows a **Poisson distribution** with mean $\lambda = \frac{c_r}{c_w}$
+- Each DNA strand is sampled independently, and the number of times a strand appears follows a **Poisson distribution** with mean $\lambda = \frac{c_r}{c_w}$
 
-- The probability that a given strand is not observed at all (i.e., the Poisson variable equals 0) is: $\mathbb{P}[\text{strand unseen}] = e^{-\lambda}$
+- The probability that a given strand is not observed at all (i.e., the Poisson variable equals 0) is:  $\mathbb{P}[\text{strand unseen}] = e^{-\lambda}$
 
 - If a strand is not observed in the read process, we effectively have an **erasure**.
 
 ---
+
+## The Case $\varepsilon = 0$ - cont.
 
 - Thus, the channel can be modeled as a **Binary Erasure Channel (BEC)** where the erasure probability is $\varepsilon = e^{-c_r / c_w}$.
 
@@ -422,6 +475,8 @@ $$
 
 ---
 
+## The case $\epsilon \neq 0$ - cont.
+
 $$
 P((k_0,k_1)|0)=\frac{e^{-\lambda}\lambda^{k_0+k_1}}{(k_0+k_1)!} {k_0+k_1\choose k_1} (1-\varepsilon)^{k_0}\varepsilon^{k_1}
 $$
@@ -430,9 +485,11 @@ $$
 
 * the term ${k_0+k_1\choose k_1} (1-\varepsilon)^{k_0}\varepsilon^{k_1}$ is the binomial probability that there are $k_1$ errors out of $k_0+k_1$ samples. 
 
-* The authors did not elaborate on how they ferived the lower bound on $c_r$ using this probability, it was achieved by numerical calculations.
+- The authors used the above probability in simulations to develop an empirical lower bound on the read cost, $c_r$.
 
-<!-- TODO(Atar): mention that it is no tight bound -->
+- Since this probability is defined at the bit level rather than the strand level, and since the bound was derived through simulations, it is not guaranteed to be tight.
+
+---
 
 ## $c_r$ vs $c_w$: Theoretical bounds 
 - This graph demonstrates the lower bounds of the cases $\varepsilon=0$ and $\varepsilon=0.5%$.
@@ -456,28 +513,61 @@ $$
 - Most of works on DNA-based storage prior to this work used the seperation technique, some incorporating elements from the single large block strategy.
 
 
-## Inner/Outer Code Separation
+## Inner/Outer Code Strategy
 
-<!-- TODO(Atar): Visualize the strategy -->
+::: {.incremental}
 
-- The inner/outer code strategy is composed of 2 codes:
+- <span style="font-size:0.8em">This strategy uses two layers of coding:
 
-  * An outter code that is applied on a segemnt of information. This code handles erasure errors that might occur.
+  - <span style="font-size:0.8em">**Outer code**: Applied across information segments to correct **erasures**.
+  - <span style="font-size:0.8em">**Inner code**: Applied within each strand to correct **substitution errors**.
 
-  * An inner code, which is apllied on each strand. This code handles substitution errors within the strand.
+- <span style="font-size:0.8em">The decoder groups reads by index and applies **majority voting** per position. Then:
+  - <span style="font-size:0.8em">The **inner decoder** corrects strand-level errors.
+  - <span style="font-size:0.8em">The **outer decoder** recovers missing segments.
 
-- The decoder first collects all reads that corespond to the same index, and applies a majority vote for each index. Then, the decoder of the inner code is applied to get the segments, and then the decoder of the outer code is applied to correct erasures.
+- <span style="font-size:0.8em">This approach is less effective for short blocks, but near-optimal erasure codes exist for large $n$.
 
-- This coding strategy is not good on short length block, but there are near-optimal erasure correcting codes for large $n$.
+:::
+
+
+![](assets/inner_outer.PNG){width=900px height=180px fig-align="center"}
 
 
 
 ## Single large block code
-<!-- TODO(Atar): TBD -->
+
+::: {.incremental}
+
+- <span style="font-size:0.8em">Instead of using two separate codes, this approach encodes the **entire data block** using one large **LDPC (Low-Density Parity-Check) code**, and then seperates the encoded block into segments. </span>
+
+- <span style="font-size:0.8em">Each segment contains a small portion of a single, long LDPC codeword. </span>
+
+- <span style="font-size:0.8em">During decoding:</span>
+  - <span style="font-size:0.8em">All sequenced strands are aligned using their **indices**.</span>
+  - <span style="font-size:0.8em">The collected data is treated as a **noisy, partial version** of the LDPC codeword.</span>
+  - <span style="font-size:0.8em">A **belief propagation** algorithm is used to recover the full data block.</span>
+
+- <span style="font-size:0.8em">This method enables a better read/write cost tradeoff.</span>
+
+:::
+ 
+
+![](assets/large_block.PNG){width=600px height=190px fig-align="center"}
 
 
-## $c_r$ vs $c_w$: Simulation bounds (Separated/Large block) 
-<!-- TODO: Figure 4 with all plots -->
+
+## $c_r$ vs $c_w$: Simulation Bounds (Separated vs. Large Block)
+
+- <span style="font-size:0.8em">The graph shows the performance of both coding strategies—**separated blocks** and a **single large block**—compared to the theoretical bound. </span>
+
+- <span style="font-size:0.8em">The simulation uses the parameters: $n = 1000$, $L = 256$. </span>
+
+
+- <span style="font-size:0.8em">The authors used a **BCH code** as the inner code and a **Raptor code** as the outer code—both known to perform well under the chosen settings. </span>
+
+![](assets/Graph_2.PNG){width=700px height=400px fig-align="center"}
+
 
 
 # Low Density Pairity Check Codes (LDPC)
@@ -602,8 +692,10 @@ So now, when the same erasures as before will occur:
 </div><br>
 We will be able to recover the erasured bits.
 <br><br>
+<div class="fragment">
 Are we done? 
 <br><br>
+</div>
 <div class="fragment">
 What if the erasured data will be<br><br>
 <div style="text-align: center; font-family: monospace; font-size: 1.5em;">
@@ -613,14 +705,12 @@ What if the erasured data will be<br><br>
 ---
 
 ## Possible Solution
-### Overlapping Pairity Check
+### Overlapping Pairity Checks
 
 instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
 
 - Consider the following 4-bit example:<br>
-<div style="text-align: center; font-family: monospace; font-size: 1.5em; letter-spacing: 1.5em;">
-1110
-</div>
+![](assets/ldpc_exa1.PNG){width=900px height=400px}
 
 
 
@@ -629,84 +719,91 @@ instead of partitioning the data into distinct parts, we can use overlapping pai
 ---
 
 ## Possible Solution
-### Overlapping Pairity Check
+### Overlapping Pairity Checks
 
 instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
 
 - Consider the following 4-bit example:<br>
-<div style="margin-left: 30px;">
-  ![](assets/overlap_ex1.PNG){width=900px height=270px}
-</div>
+![](assets/ldpc_exa2.PNG){width=900px height=400px}
+
 
 ## Possible Solution
-### Overlapping Pairity Check
+### Overlapping Pairity Checks
 
 instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
 
 - Consider the following 4-bit example:<br>
-<div style="margin-left: 30px;margin-bottom: 50px">
-  ![](assets/overlap_ex2.PNG){width=900px height=280px}
-</div>
+![](assets/ldpc_exa3.PNG){width=900px height=400px}
 
 ---
 
 ## Possible Solution
-### Overlapping Pairity Check
+### Overlapping Pairity Checks
 
 instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
 
 - Consider the following 4-bit example:<br>
-<div style="margin-left: 30px;margin-bottom: 50px">
-  ![](assets/overlap_ex3.PNG){width=900px height=280px}
-</div>
+![](assets/ldpc_exa4.PNG){width=900px height=400px}
 
 ---
 
 ## Possible Solution
-### Overlapping Pairity Check
+### Overlapping Pairity Checks
 
 instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
 
 - Consider the following 4-bit example:<br>
-<div style="margin-left: 30px;margin-bottom: 50px">
-  ![](assets/overlap_ex4.PNG){width=900px height=280px}
-</div>
----
-
-## Possible Solution
-### Overlapping Pairity Check
-
-instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
-
-- Consider the following 4-bit example:<br>
-<div style="margin-left: 30px;margin-bottom: 50px">
-  ![](assets/overlap_ex5.PNG){width=900px height=280px}
-</div>
+![](assets/ldpc_exa5.PNG){width=900px height=400px}
 
 ---
 
 ## Possible Solution
-### Overlapping Pairity Check
+### Overlapping Pairity Checks
 
 instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
 
 - Consider the following 4-bit example:<br>
-<div style="margin-left: 30px;margin-bottom: 50px">
-  ![](assets/overlap_ex6.PNG){width=900px height=280px}
-</div>
+![](assets/ldpc_exa6.PNG){width=900px height=400px}
+
+---
+
+## Possible Solution
+### Overlapping Pairity Checks
+
+instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
+
+- Consider the following 4-bit example:<br>
+![](assets/ldpc_exa7.PNG){width=900px height=400px}
 
 ---
 
 ## Possible Solution  
 ### Overlapping Parity Checks
 
-- In the overlapping parity check example, we showed how to correct any 2 erasures in a 4-bit message. <br><br>
+- <span style="font-size:0.8em">In the overlapping parity check example, we showed how to correct any 2 erasures in a 4-bit message. </span>
 
-- What would happen if we apply this strategy repeatedly over consecutive 4-bit blocks in a longer message? <br><br>
+- <span style="font-size:0.8em">What would happen if we apply this strategy repeatedly over consecutive 4-bit blocks in a longer message?</span>
 
-- And what if we increase the overlap size together with the amount of pairity checks per overlap — how does that impact performance and error correction?
+![](assets/4-bit_ex.PNG){width=600px height=150px fig-align="center"}
+
+- <span style="font-size:0.8em">And what if we increase the overlap size together with the amount of pairity checks per overlap — how does that impact performance and error correction?</span>
+
+![](assets/16-bit_ex.PNG){width=800px height=140px fig-align="center"}
 
 ---
+
+## Possible Solution
+### Parity Check Bits Protection
+
+- A natural question arises: how are the **parity check bits** protected, given that they are also subject to substitution errors?
+
+- The solution lies in the **structure of LDPC codes**:  
+  Parity bits are **not isolated**—they are also included in other parity check equations.
+
+- By involving **both data and parity bits** in the parity constraints, LDPC codes ensure that **parity bits are themselves protected** and can be recovered during decoding.
+
+- This design enables the **belief propagation algorithm** to iteratively correct errors in both data and parity bits, and effectively recover all the data.
+
 
 ## Density and the Role of Overlap
 
@@ -726,17 +823,62 @@ instead of partitioning the data into distinct parts, we can use overlapping pai
   - **High recovery power** (which favors larger overlapping neighborhoods),
   - With **low decoding complexity** (which favors smaller overlaps).
 
-- He introduced the concept of **density**, whcih is a measure of how many bits participate in each parity check:
+- He introduced the concept of **density**, which is a measure of how many bits participate in each parity check:
   - **Higher density** means more overlap (stronger recovery),
   - **Lower density** means less overlap (faster decoding).
 
+---
 
+:::{.smaller}
+## Low Density
 
-<!-- TODO(Atar) encode + bit flip decode -->
+::: {.incremental}
+
+- Gallager showed that even **sparse** parity-check matrices can achieve strong error correction.
+
+- Low-density codes allow efficient **decoding algorithms** like belief propagation.
+
+- Sparsity reduces complexity while still maintaining performance close to capacity.
+
+- Gallager also showed that **randomly generated** sparse matrices usually perform well.
+
+- Randomness avoids problematic patterns in the code structure.
+
+- In practice, carefully designed random LDPC matrices approach the Shannon limit.
+
+:::
+
+:::
+
 
 
 ## LDPC Theory
-- Tanner graphs and parity check matrices $H$, $G$ (generation matrix)
+
+- A LDPC code can be presented as a parity-check matrix $H$.
+
+- The matrix is composed of $n$ columns and $k$ rows, where each column represents a bit (pairity bit or regular bit), and each row represents a parity-check equation over some bits.
+
+- Each row has only a few non-zero entries, which mean that the pairity checks have low Density.
+
+- A vector $\bar{v}\in \{0,1\}^{nX1}$ is a codeward if and only if $Hv=\bar{0}$.
+
+### Example
+
+Let $n = 8$, and $k = 3$. Then one possible $H$ matrix:
+
+$$
+H =
+\begin{bmatrix}
+1 & 1 & 0 & 1 & 0 & 0 & 0 & 0\\
+0 & 1 & 1 & 0 & 0 & 0 & 0 & 1 \\
+1 & 0 & 0 & 0 & 0 & 1 & 1 & 0
+\end{bmatrix}
+$$
+
+::: {.fragment}
+Each row says: the sum (mod 2) of the marked bits must equal zero.  
+These constraints define the valid codewords.
+:::
 
 ## LDPC - Encoding "Algorithm"
 
