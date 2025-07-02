@@ -74,8 +74,6 @@ Since the cost of write and cost of read are strongly correlated, this paper aim
 
 :::
 
-# Theoretical Bounds {data-name="Theoretical Bounds"}
-
 ## Cost of Read and Write 
 
 * **Cost Of Write**
@@ -254,7 +252,7 @@ $$
 :::
 ---
 
-## What is a Channel? {data-name="Theoretical Foundations"}
+## What is a Channel?
 
 A **channel** is a mathematical model used in information theory to describe how information is transmitted from a sender to a receiver.
 
@@ -581,9 +579,10 @@ $$
 
 
 
-# Low Density Pairity Check Codes (LDPC)
-
-## LDPC Codes {data-name="LDPC"}
+::: {.center}
+# 5 Low Density Parity Check (LDPC) {data-name="LDPC"}
+:::
+## LDPC Codes
 
 - LDPC (Low-Density Parity-Check) codes are a powerful class of linear error-correcting codes.
 - First introduced by Gallager in the 1960s, but gained widespread adoption in the 1990s with improved decoding algorithms.
@@ -861,13 +860,6 @@ instead of partitioning the data into distinct parts, we can use overlapping pai
 
 :::
 
-::: {.center}
-# 4 Low Density Parity Check (LDPC) {data-name="LDPC"}
-:::
-
-## LDPC 
-LDPC codes are a class of linear block error correction codes. Originally invented by Gallager in the 1960s, yet has become into wide use only in recent decades. They are used in cellular communications, Wi-Fi, video broadcasts, and more today.
-
 ## LDPC Theory
 
 - A LDPC code can be presented as a parity-check matrix $H$.
@@ -905,7 +897,7 @@ These constraints define the valid codewords.
 ## LDPC Decoding: Belief propagation algorithm
 
 ::: {.center}
-# 5 Encoding/Decoding Schema {data-name="Schema"}
+# 6 Encoding/Decoding Schema {data-name="Schema"}
 :::
 
 ## 3 challenges in using DNA for data storage
@@ -1178,7 +1170,7 @@ REV
 
 
 ::: {.center}
-# 6 Experimental results {data-name="Results"}
+# 7 Experimental results {data-name="Results"}
 :::
 
 ## Write/read costs (Fig. 8 / Table 1) {.smaller}
@@ -1245,7 +1237,7 @@ REV
 
 
 ::: {.center}
-# 7 Concluding Remarks {data-name="Conclusions"}
+# 8 Concluding Remarks {data-name="Conclusions"}
 :::
 
 ## Conclusions
