@@ -896,6 +896,10 @@ These constraints define the valid codewords.
 
 ## LDPC Decoding: Belief propagation algorithm
 
+<!-- TODO(Matan): Add Notation, algorithm, example (maybe html) -->
+
+
+
 ::: {.center}
 # 6 Encoding/Decoding Schema {data-name="Schema"}
 :::
@@ -1172,6 +1176,9 @@ REV
 ::: {.center}
 # 7 Experimental results {data-name="Results"}
 :::
+
+<!-- TODO(Add drawing of the experiment - repeat until 20\20) -->
+
 
 ## Write/read costs (Fig. 8 / Table 1) {.smaller}
 
