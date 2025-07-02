@@ -168,6 +168,12 @@ The number of 1’s in a regular-density matrix grows as N·(M-N)
 | 2. Unordered reads          | • Addressing index<br>• BCH codes                                            |
 | 3. Insertion/deletion errors | • Convert to substitution errors:<br> • Sync markers<br> • MSA (via indexed clusters) |
 
+<!-- TODO(Matan): Add Index and MSA explanation -->
+
+## Index (+ BCH)
+
+## Multiple Sequence Alignment (MSA)
+
 ## Synchronization Marker
 
 - **Problem:** Insertions and deletions ("indels") shift the alignment of bases, making decoding difficult.
@@ -207,7 +213,7 @@ Payload
 :::
 :::
 
-## encoding a single binary file {auto-animate=true auto-animate-easing="ease-in-out"}
+## Encoding a single binary file {auto-animate=true auto-animate-easing="ease-in-out"}
 
 - File size: $192_\text{KB} = 192 \times 1000_\text{B} = 1 536 000_\text{bits}$
 - Encoding steps from: 
@@ -480,6 +486,7 @@ REV
 ![](assets/figure11.png)
 :::
 
+<!-- TODO(Matan): Add a figure with the probability of decoding failure -->
 ## Stress testing
 
 * Simulated **6% total error** (2% sub / 2% del / 2% ins)
@@ -508,8 +515,11 @@ REV
 
 ## Limitations
 * **Random access** No range queries or selective decoding
+* **Counting on heuristics** for indel correction, which may not generalize well
 * **Error model** Assumes independent errors, which may not hold in practice
 * **Relying on simulations** for performance evaluation, which may not fully capture real-world complexities
+
+<!-- TODO(Atar & Matan): Think of improvments -->
 
 
 
