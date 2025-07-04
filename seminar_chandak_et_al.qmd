@@ -895,8 +895,121 @@ These constraints define the valid codewords.
   - Gallager’s bit-flipping algorithm (BSC)
 
 ## LDPC Decoding: Belief propagation algorithm
+- Gallager introduced the idea of iterative, messagepassing decoding of LDPC codes.
+- The idea is to iteratively share the results of local node decoding by passing them along edges of the Tanner graph.
+- We will demonstrate this decoding method for the BSC
 
-<!-- TODO(Matan): Add Notation, algorithm, example (maybe html) -->
+## A-priori Probabilities and Log-Likelihood Ratios {.smaller}
+
+- For a binary variable $x$, define the **log-likelihood ratio**
+
+  $$L(x)=\log\frac{p(x=0)}{p(x=1)}.$$
+
+  *Positive* $L(x)$ ⇒ bit more likely 0, *negative* ⇒ bit more likely 1.
+
+- Conversion back to probabilities  
+
+  $$
+  p(x=1)=\frac{e^{-L(x)}}{1+e^{-L(x)}},\qquad
+  p(x=0)=\frac{e^{\,L(x)}}{1+e^{\,L(x)}}.
+  $$
+
+- LLRs turn probability multiplications into **additions**, simplifying the
+  sum–product computations.
+
+- In the decoder the channel LLRs $\tilde L_i$ play the role of **a-priori**
+  information; iterative message-passing refines them into **a-posteriori**
+  LLRs that incorporate the parity-check constraints.
+
+## Optimality of the Sum–Product Algorithm
+
+- The algorithm minimizes the *bit-wise* a-posteriori probability  
+  $$\hat x_i=\arg\max_{x_i\in\{0,1\}} P(X_i=x_i \mid \mathbf y)$$
+
+  under the assumptions that  
+  - the code bits $x_i$ are independent  
+  - the messages passed are independent ⟹ the Tanner graph has no cycles
+
+- Although these assumptions are **not** met in practice, the decoder remains extremely effective and simple to implement.
+
+- Further details are avilable in Gallager's works.
+
+## Definition – *Variable* and *Check* Node Connection Sets
+
+For an LDPC code with parity-check matrix **H** of size  
+$m \times n$:
+
+::: callout-note
+- Let $\mathcal N(i)$ denote the **connection set of variable node** $v_i$ — the **check-node indices** connected to $v_i$  
+  $$\mathcal N(i)=\bigl\{\,j : H_{j,i}=1\bigr\}.$$
+
+- Let $\mathcal M(j)$ denote the **connection set of check node** $c_j$ — the **variable-node indices** connected to $c_j$  
+  $$\mathcal M(j)=\bigl\{\,i : H_{j,i}=1\bigr\}.$$
+:::
+
+## Definition – Variable → Check Messages
+
+::: callout-note
+
+
+- We denote by $L^{[v]}_{i \to j}$ the LLR information **computed by variable node** $v_i$ and sent (along its edge in the Tanner graph) **to check node** $c_j$.
+
+
+- We denote by $L^{[c]}_{i \leftarrow j}$ the LLR information **computed by check node** $c_j$ and sent (along its edge in the Tanner graph) **to variable node** $v_i$.
+
+- We abbreviate the channel-transition LLR information
+$L(y_i \mid X_i) \;:=\; \tilde{L}_i$.
+:::
+
+---
+
+## Sum–Product Decoding Algorithm {.smaller}
+
+1. **Init.**  
+   For every $i\in\{1,\dots,n\}$ set $L^{[v]}_{i\to j}=\tilde L_i=L(y_i\mid X_i)$ for all $j\in\mathcal N(i)$.
+
+2. **CN update.**  
+   For each check node $c_j\;(j\in\{1,\dots,m\})$ compute  
+   $$L^{[c]}_{i\leftarrow j}=2\tanh^{-1}\!\Bigl(\prod_{i'\in\mathcal M(j)\setminus\{i\}}\tanh\!\bigl(L^{[v]}_{i'\to j}/2\bigr)\Bigr),\quad\forall i\in\mathcal M(j).$$
+
+3. **VN update.**  
+   For each variable node $v_i\;(i\in\{1,\dots,n\})$ compute  
+   $$L^{[v]}_{i\to j}=\tilde L_i+\sum_{j'\in\mathcal N(i)\setminus\{j\}}L^{[c]}_{i\leftarrow j'},\quad\forall j\in\mathcal N(i).$$
+
+4. **Total LLR & decision.**  
+   $$L^{[\text{total}]}_i=\tilde L_i+\sum_{j\in\mathcal N(i)}L^{[c]}_{i\leftarrow j},\qquad
+     \hat x_i=\begin{cases}1,&L^{[\text{total}]}_i<0,\\[4pt]0,&\text{otherwise.}\end{cases}$$
+
+Stop if $H\hat{\mathbf x}^T=0$ **or** the iteration limit is reached; otherwise return to **step 2**.
+
+## Example – Channel LLRs for a BSC {.smaller}
+
+Consider the received word  
+
+$$\mathbf y=[1\;0\;1\;0\;1\;1]$$
+
+on a binary-symmetric channel with crossover probability $p=0.2$.
+
+The a-priori LLR for bit $i$ is  
+$$
+\tilde L_i = L(y_i\mid X_i)=
+\begin{cases}
+\log\dfrac{p}{1-p}, & y_i=1,\\[6pt]
+\log\dfrac{1-p}{p}, & y_i=0.
+\end{cases}
+$$
+
+With $\log\dfrac{0.2}{0.8}=-1.3863$ and $\log\dfrac{0.8}{0.2}=+1.3863$ we get  
+
+$$
+\mathbf r=[\,-1.3863,\;1.3863,\,-1.3863,\;1.3863,\,-1.3863,\,-1.3863\,].
+$$
+
+These values are the initial messages $\tilde L_i$ fed into the decoder.
+
+
+## LDPC Decoding example
+<iframe src="./assets/BP.html" width="1920" height="800" style="border: 1px solid #ccc" frameborder=0></iframe>
 
 
 
@@ -911,11 +1024,24 @@ These constraints define the valid codewords.
 | 2. Unordered reads          | • Addressing index<br>• BCH codes                                            |
 | 3. Insertion/deletion errors | • Convert to substitution errors:<br> • Sync markers<br> • MSA (via indexed clusters) |
 
-<!-- TODO(Matan): Add Index and MSA explanation -->
+## Index (+ BCH) {.smaller}
 
-## Index (+ BCH)
+- **Addressing:** attaches a 14-bit (or 24-bit) index so reads from random order can be re-assembled in place.  
+- **Error-safe:** index bits are wrapped in a BCH code (2- or 3-error-correction).  
+  * → decoder can still sort reads even with substitutions.*  
+- **Indel rescue:** heuristic tries all single-insertion / deletion variants until BCH passes, recovering ∼5–10 % extra reads.  
+- **Computational win:** clustering by exact index is O(1); avoids expensive similarity clustering.
 
-## Multiple Sequence Alignment (MSA)
+
+---
+
+## Multiple-Sequence Alignment (MSA) {.smaller}
+
+- Run **per index bucket** (≈ 3–10 reads, 150 bp) → tiny, fast alignments.  
+- **Lines up indels** → gaps become **erasures (?)** instead of bad bits.  
+- Outputs **base counts** \((k_0,k_1)\) → converted to soft LLRs for LDPC.  
+- If consensus length off, use the in-strand **“AGT” marker** to trim half and mark the rest erasures.  
+- Net result: LDPC sees a large code-word with *substitutions + explicit erasures* it can correct simultaneously.
 
 ## Synchronization Marker
 
@@ -1169,8 +1295,33 @@ REV
 ![](assets/encoding.png)
 :::
 
-## Decoding schema overview
-<!-- TODO(Mattan) -->
+## Decoding – how the counts become LLRs {.smaller}
+
+After per-index MSA we have counts $k_0,k_1$ (gaps discarded).
+
+$$\boxed{\,\text{LLR}(k_0,k_1)\;=\ln\frac{P((k_0,k_1)|0)}{P((k_0,k_1)|1)}=\;(k_0-k_1)\,
+        \ln\!\Bigl(\tfrac{1-\varepsilon}{\varepsilon}\Bigr)}$$
+
+* $k_0,k_1$ = how many times column voted “0” or “1”  
+* $\varepsilon$ = post-MSA substitution rate (paper uses 4 %)  
+* Positive → bit likely **0**, negative → bit likely **1**, near 0 → **erasure**
+
+These soft LLRs seed the LDPC **belief-propagation** decoder instead of hard 0/1 decisions.
+
+---
+
+## Full decode pipeline in four bullets {.smaller}
+
+1. **Primer trim & orientation** → raw reads  
+2. **Index + BCH decode**  
+   * correct up to 2–3 bit errors  
+   * single-indel heuristic recovers extra reads  
+3. **Per-index MSA (+ sync marker)**  
+   * aligns indels, outputs counts → LLRs  
+   * truncated halves → erasures  
+4. **Large-block LDPC decode**  
+   * consumes \(\text{LLR}(k_0,k_1)\) stream  
+   * fixes remaining substitutions **and** erasures (missing strands) in one shot
 
 
 ::: {.center}
