@@ -166,22 +166,22 @@ Since the cost of write and cost of read are strongly correlated, this paper aim
 ## Model Definition {.nostretch}
 
 ::: {.fragment data-fragment-index="1"}
-- <span style="font-size:0.8em">The storage system encodes $n$ information strands, each of length $L$. </span>
+- <span style="font-size:0.8em;color:#00B0F0" >The storage system encodes $n$ information strands, each of length $L$. </span>
 :::
 
 ::: {.fragment data-fragment-index="3"}
-- <span style="font-size:0.8em">To store the data with write cost $c_w$, the encoder synthesizes $n \cdot c_w$ strands of length $L$.</span>
+- <span style="font-size:0.8em;color:#059B2C">To store the data with write cost $c_w$, the encoder synthesizes $n \cdot c_w$ strands of length $L$.</span>
 :::
 
 ::: {.fragment data-fragment-index="5"}
-- <span style="font-size:0.8em"> To retrieve the data with read cost $c_r$, the decoder samples $n \cdot c_r$ strands of length $L$. </span>
+- <span style="font-size:0.8em;color:#059B2C"> To retrieve the data with read cost $c_r$, the decoder samples $n \cdot c_r$ strands of length $L$. </span> <br><br>
 :::
 
 <!-- Images side-by-side and controlled with fragments -->
 <div style="margin-bottom: 200px;">
   <img src="assets/model_process1.PNG" width="200" class="fragment" data-fragment-index="2">
   <img src="assets/model_process2.PNG" width="350" class="fragment" data-fragment-index="4">
-  <img src="assets/model_process3.PNG" width="350" class="fragment" data-fragment-index="6">
+  <img src="assets/model_process3.PNG" width="360" class="fragment" data-fragment-index="6">
 </div>
 
 
@@ -198,7 +198,7 @@ Since the cost of write and cost of read are strongly correlated, this paper aim
   - <span style="font-size:0.7em"> **Substitution errors** — each sampled strand is passed through a Binary Symmetric Channel (BSC) with bit-flip probability $\epsilon$. This simulates sequencing errors.</span>
   - <span style="font-size:0.7em"> **Sampling variability** — the number of times each strand is sampled is random (Poisson-distributed).</span>
 
-![](assets/model_process4.PNG){width=500px height=180px fig-align="center"}
+![](assets/model_process4.PNG){width=900px height=180px fig-align="center"}
 
 
 ---
@@ -245,7 +245,18 @@ $$
 ::: {.center}
 # 2 Communication and Information 101 {data-name="Theory"}
 :::
-    
+
+---
+
+## Communication and Information - Motivation
+
+- We’ve seen that the **write cost** $c_w$ and **read cost** $c_r$ are tightly connected. With an optimal code, increasing $c_w$ typically reduces $c_r$. <br><br>
+
+- However, a higher write cost means more redundancy, which **lowers the information rate** per bit. <br><br>
+
+- In this section, we introduce basic **channel theory** to better understand and analyze the **tradeoff between $c_w$ and $c_r$**.
+
+
 ::: {.notes}
 - We have shown that the cost of read and cost of write are closely related, and that the coverage is not a good metric to evaluate the tradeoff between them.
 - To understand how, we need to understand the theoretical foundations of communication and information theory.
@@ -261,7 +272,7 @@ A **channel** is a mathematical model used in information theory to describe how
 
 The channel introduce **noise**, leading to errors or loss.
 
-
+![](assets/channel.PNG){width=800px height=300px fig-align="center"}
 
 ---
 
@@ -291,7 +302,7 @@ $$
 
 ---
 
-## Entropy – Continued
+## Entropy – Cont.
 
 - $H(X) = 0$ when $X$ is completely predictable (e.g., a constant value).
 - $H(X) = 1$ when $X$ is completley uncertain. This occurs when $X \sim \text{Bern}(\tfrac{1}{2})$.
@@ -301,9 +312,11 @@ $$
 H(X) = \sum_y P(Y = y) \cdot H(X \mid Y = y)
 $$
 
+![](assets/entropy.PNG){width=600px height=300px fig-align="center"}
+
 ---
 
-## Capacity of a BEC
+## Capacity of a Binary Erasure Channel (BEC)
 
 <span style="font-size:0.7em"> Assume a bit $X\sim\mathrm{Bern}\bigl(\tfrac12\bigr)$ and a Binary Erasure Channel with erasure probability $\varepsilon$. Let $Y$ be the output of the channel. Then:</span>
 
@@ -322,11 +335,10 @@ $$
 
 :::
 
-- <span style="font-size:0.7em"> This holds because when the output is “?”, then $P(X=1)=P(X=0)=0.5$, which is a state of maximum uncertainty. On the other hand, when the output is 0 or 1, the input is known with maximal certainty by the definition of BEC.</span>
+- <span style="font-size:0.7em">This holds because when the output is "?"", the input is completely uncertain, i.e., $P(X=1) = P(X=0) = 0.5$. In contrast, when the output is 0 or 1, the input is known with certainty, as defined by the Binary Erasure Channel (BEC).</span>
+
 
 ---
-
-<!-- TODO(Mattan): Add hidden slide with mutual information as expectation of the PMI -->
 
 ## Capacity of a Binary Erasure Channel (BEC)
 **<span style="font-size:1.1em">Mutual information </span>** 
@@ -368,25 +380,33 @@ $$
 ## Capacity of a Binary Erasure Channel (BEC) {.smaller}
 **<span style="font-size:1.1em">Capacity - cont.</span>**  
 
-- The maximum mutual information over all input distributions represents the most information the output can infer about the input through the channel.
+- The maximum mutual information over all input distributions defines the channel capacity—that is, the highest rate at which information can be reliably transmitted.
 
-- This means that up to this rate, information can be transmitted and decoded reliably. No other input distribution can achieve a higher reliable information rate since it's maximal. 
-- apperantly, the mutual information of the random variable $X$ and and it's output $Y$ that we previously examined, is maximal among input distributions. 
-- Since $I(X;Y)=1-\varepsilon$ then $C=1-\varepsilon$.
+- No other input distribution can achieve a higher reliable rate, as this value is by definition maximal.
+
+- In the case of the Binary Erasure Channel (BEC), the mutual information $I(X;Y)$ is maximized when $X$ is uniformly distributed, i.e., $P(X=0) = P(X=1) = 0.5$.
+
+- Under this distribution, we get $I(X;Y) = 1 - \varepsilon$, and thus the capacity of the channel is $C = 1 - \varepsilon$.
+
 
 ---
 
 
-## What is the Code Rate?
+## Code Rate
 
-- In coding theory, the **rate** $R$ measures how much **actual information** is **transmitted per channel use**.
+- In coding theory, the **code rate** $R$ quantifies the rate of **information** transmitted per **encoded bit**.
 
-- Recall that the write cost $c_w$ is $\frac{|\text{SYN}|}{|\text{DATA}|}$. Therefore:
-$$
-1/c_w=\frac{|\text{DATA}|}{|\text{SYN}|}= R
-$$
+- Recall that the write cost $c_w$ is defined as:  
+  $$
+  c_w = \frac{|\text{SYN}|}{|\text{DATA}|}
+  $$
+  which implies:
+  $$
+  \frac{1}{c_w} = \frac{|\text{DATA}|}{|\text{SYN}|} = R
+  $$
 
-- This tells us what is the rate of information inside an encoded bit, which is exactly the definition of rate.
+- In other words, the **inverse write cost** captures how much information is packed into each encoded bit, which is the code rate.
+
 
 ---
 
@@ -422,15 +442,17 @@ Assume we have a BEC with $\varepsilon=0.6$ and an encoder with $c_w=2$.
 ![](assets/BSC.PNG){width=400px height=270px fig-align="center"}
 
 ## Recap
-- The storage model discussed so far is composed on $nc_w$ strands that are synthesized, and $nc_r$ strands that are sampled from a poisson distributed data.
+- The storage model discussed so far is composed on $nc_w$ strands that are synthesized, and $nc_r$ strands that are sampled from a poisson distributed data. The index of each strand remains intact.
 
-- Then, the data is transmited through a Binary Symmetric Channel (BSC) with substitution rate $\varepsilon$.
+- The data is transmited through a Binary Symmetric Channel (BSC) with substitution rate $\varepsilon$.
 
 - In a Binary Erasure Channel (BEC), the capacity of the channel must be greater or equal to the rate of the code. 
 
+- The capacity of a BEC must be greater or equal to the code rate.
+
 - We now proceed to analyze the lower bounds of the trdeoff between $c_w$ and $c_r$ with different values of $\epsilon$.
 
----
+
     
 ::: {.center}
 # 3 Theoretical bounds {data-name="Bounds"}
@@ -469,9 +491,9 @@ $$
 
 ## The case $\epsilon \neq 0$ 
 
-<!-- TODO(Atar): Visual example -->
 
-- Since now the reads might have substitution errors, each bit that is sampled is transmitted through a BSC with error probability $\varepsilon$.
+
+- Now, each bit that is sampled is transmitted through a BSC with error probability $\varepsilon>0$.
 
 - Recall that it is assumed that the index of each strand remains intact, and that each strand is sampled $k$ times, where $k$ is $Poisson(\frac{c_r}{c_w})$ distributed.
 
@@ -487,15 +509,92 @@ $$
 P((k_0,k_1)|0)=\frac{e^{-\lambda}\lambda^{k_0+k_1}}{(k_0+k_1)!} {k_0+k_1\choose k_1} (1-\varepsilon)^{k_0}\varepsilon^{k_1}
 $$
 
-* The term $\frac{e^{-\lambda}\lambda^{k_0+k_1}}{(k_0+k_1)!}$ is the probability that a poisoon random variable gets the value $k_0+k_1$. 
+* The term $\frac{e^{-\lambda}\lambda^{k_0+k_1}}{(k_0+k_1)!}$ is the probability that a poisson random variable gets the value $k_0+k_1$. 
 
 * the term ${k_0+k_1\choose k_1} (1-\varepsilon)^{k_0}\varepsilon^{k_1}$ is the binomial probability that there are $k_1$ errors out of $k_0+k_1$ samples. 
 
-- The authors used the above probability in simulations to develop an empirical lower bound on the read cost, $c_r$.
+* The probability of observing the sample counts $(k_0, k_1)$ given that the bit is 1 is symmetric with respect to swapping $k_0$ and $k_1$.
 
-- Since this probability is defined at the bit level rather than the strand level, and since the bound was derived through simulations, it is not guaranteed to be tight.
+* The following example illustrates how the calculations are performed.
 
 ---
+
+## The case $\epsilon \neq 0$ - Example
+
+- In this example, we assume that \epsilon=0.1$ and $\lambda=3$.
+
+
+::: {.center}
+
+<table style="font-family: monospace; font-size: 1.3em; border-collapse: separate; border-spacing: 0 6px;">
+  <tr style="border-bottom: 2px solid #999;">
+    <th style="padding: 0px 12px;">Source</th>
+    <th style="padding: 0px 12px;">Bit 1</th>
+    <th style="padding: 0px 12px;">Bit 2</th>
+    <th style="padding: 0px 12px;">Bit 3</th>
+    <th style="padding: 0px 12px;">Bit 4</th>
+  </tr>
+  <tr>
+    <td style="padding: 0px 12px;"><strong>Original</strong></td>
+    <td style="color: black;">1</td>
+    <td style="color: black;">0</td>
+    <td style="color: black;">1</td>
+    <td style="color: black;">0</td>
+  </tr>
+  <tr>
+    <td style="padding: 0px 12px;">Sample 1</td>
+    <td style="color: blue;">1</td>
+    <td style="color: red;">0</td>
+    <td style="color: blue;">1</td>
+    <td style="color: red;">0</td>
+  </tr>
+  <tr>
+    <td style="padding: 0px 12px;">Sample 2</td>
+    <td style="color: blue;">1</td>
+    <td style="color: blue;">1</td>
+    <td style="color: blue;">1</td>
+    <td style="color: red;">0</td>
+  </tr>
+  <tr>
+    <td style="padding: 0px 12px;">Sample 3</td>
+    <td style="color: red;">0</td>
+    <td style="color: red;">0</td>
+    <td style="color: blue;">1</td>
+    <td style="color: red;">0</td>
+  </tr>
+  <tr>
+    <td style="padding: 0px 12px;">$(k_0,k_1)$</td>
+    <td>(1,2)</td>
+    <td>(2,1)</td>
+    <td>(0,3)</td>
+    <td>(3,0)</td>
+  </tr>
+  <tr>
+    <td style="padding: 0px 12px;">Probability</td>
+    <td>0.054</td>
+    <td>0.054</td>
+    <td>0.163</td>
+    <td>0.163</td>
+  </tr>
+</table>
+
+
+
+
+:::
+
+
+
+---
+
+## The case $\epsilon \neq 0$ - cont.
+
+- The authors adopt a per-bit perspective to analyze the lower bound on performance.
+
+- They use the bit-level probability in simulations to empirically estimate a lower bound on the read cost, $c_r$.
+
+- Since the analysis is performed at the bit level rather than the strand level, and the bound is based on simulation results, it is important to note that the bound is empirical and may not be tight.
+
 
 ## $c_r$ vs $c_w$: Theoretical bounds 
 
@@ -513,7 +612,19 @@ $$
 ---
 
 ## Coding Strategies - Introduction
-- In the DNA-based storage world, there is a variety of coding schemes and techniques to recover different types of errors.
+
+When designing an encoding and decoding scheme, we must account for **two primary sources of error**:
+
+- **Outer Code Errors** — Since the data is divided into multiple strands, some strands may never be sampled or sequenced. The outer code must handle such **erasure errors** and enable recovery of the missing data.
+
+- **Inner Code Errors** — During synthesis and sequencing, strands may undergo **substitution**, **insertion**, or **deletion** errors. The inner code must correct these errors to recover the original encoded information.
+
+
+---
+
+## Coding Strategies
+
+- In the DNA-based storage world, there is a variety of coding schemes and techniques to recover inner and outer code errors.
 
 - The authors of the paper consider 2 coding strategies:
   * **Inner/Outer Code Separation** - a coding startegy that is composed of an inner code, which handles error inside strands, and outer code, which handles errors in the order of the strands. 
@@ -523,6 +634,8 @@ $$
 
 
 ## Inner/Outer Code Strategy
+
+<!-- TODO (MATTAN) add a better visualisation. -->
 
 ::: {.incremental}
 
@@ -565,6 +678,23 @@ $$
 ![](assets/large_block.PNG){width=600px height=190px fig-align="center"}
 
 
+---
+
+## Coding Strategies - Summary
+
+- The following table summarizes the role of each type of code in handling **erasure** and **substitution** errors:
+
+<br>
+
+::: center
+| Code Type        | Erasure Errors | Substitution Errors |
+|------------------|----------------|----------------------|
+| Inner Code       | ✗              | ✓                    |
+| Outer Code       | ✓              | ✗                    |
+| Large Block Code | ✓              | ✓                    |
+:::
+
+---
 
 ## $c_r$ vs $c_w$: Simulation Bounds (Separated vs. Large Block)
 
@@ -613,23 +743,27 @@ $$
 ---
 
 ## Pairity Check
-We can add a pairity check bit to our data:
+We can enhance our data by adding a parity check bit:
 
 <div style="text-align: center; font-family: monospace; font-size: 1.5em;">
 1 0 0 1 1 0 <span class="fragment" style="color:red;">1</span>
 </div>
+
 <br><br>
+
 <span class="fragment">
- Now, when we will recieve the following data:
- <div style="text-align: center; font-family: monospace; font-size: 1.5em;">
+Suppose we later receive the following (with one bit erased):
+<div style="text-align: center; font-family: monospace; font-size: 1.5em;">
 1 ? 0 1 1 0 <span style="color:red;">1</span>
 </div>
 </span>
+
 <br>
 
 <span class="fragment">
-We can calculate the pairity of all bits besides the erasured bit, compare it to the pairity check bit, and thus recover the erasured bit.
+To recover the missing bit, we compute the parity of the known bits and compare it to the parity check bit. This allows us to deduce the value of the erased bit.
 </span>
+
 
 ---
 
@@ -653,9 +787,7 @@ Can our pairity check bit help us recover both erasured bits?
 
 We can parttion the message into 2 distinct parts, and add a pairity check bit for every part.
 
-<div style="text-align: center; font-family: monospace; font-size: 1.5em;">
-1 0 0 1 1 0
-</div><br>
+![](assets/naive1.PNG){width=600px height=290px fig-align="center"}
 
 ---
 
@@ -663,11 +795,8 @@ We can parttion the message into 2 distinct parts, and add a pairity check bit f
 
 We can parttion the message into 2 distinct parts, and add a pairity check bit for every part.
 
-![](assets/ldpc_ex1.PNG){width=545px height=290px fig-align="center"}
 
-<div style="text-align: center; font-family: monospace; font-size: 1.5em;">
-<span class="fragment"> 1 0 0 1 1 0 <span style="color:red;">1</span></span>
-</div><br>
+![](assets/naive2.PNG){width=600px height=290px fig-align="center"}
 
 ---
 
@@ -675,42 +804,35 @@ We can parttion the message into 2 distinct parts, and add a pairity check bit f
 
 We can parttion the message into 2 distinct parts, and add a pairity check bit for every part.
 
-![](assets/ldpc_ex1.PNG){width=545px height=290px fig-align="center"}
+![](assets/naive3.PNG){width=600px height=290px fig-align="center"}
 
-<div style="text-align: center; font-family: monospace; font-size: 1.5em;">
-![](assets/ldpc_ex2.PNG){width=470px height=290px fig-align="center"}
-</div>
 ---
 
 ## Naive Idea
 
 We can parttion the message into 2 distinct parts, and add a pairity check bit for every part.
 
-![](assets/ldpc_ex1.PNG){width=545px height=290px fig-align="center"}
-
-<div style="text-align: center; font-family: monospace; font-size: 1.5em;">
-1 0 0 1 1 0 <span style="color:red;">1 1</span>
-</div><br>
+![](assets/naive4.PNG){width=600px height=290px fig-align="center"}
 
 ---
 
 ## Naive Idea
 
-So now, when the same erasures as before will occur:
+We can parttion the message into 2 distinct parts, and add a pairity check bit for every part.
+
+![](assets/naive5.PNG){width=600px height=290px fig-align="center"}
+
+<span class="fragment"> So now, when the same erasures as before will occur:
 <div style="text-align: center; font-family: monospace; font-size: 1.5em;">
-1 ? 0 1 ? 0 <span style="color:red;">1 1</span>
+1 ? 0 1 ? 0 <span style="color:red;">1 0</span>
 </div><br>
 We will be able to recover the erasured bits.
 <br><br>
-<div class="fragment">
+</span>
+<span class="fragment">
 Are we done? 
-<br><br>
-</div>
-<div class="fragment">
-What if the erasured data will be<br><br>
-<div style="text-align: center; font-family: monospace; font-size: 1.5em;">
-1 ? ? 1 1 0 <span style="color:red;">1 1</span>
-</div></div>
+</span>
+
 
 ---
 
@@ -805,6 +927,20 @@ instead of partitioning the data into distinct parts, we can use overlapping pai
 ## Possible Solution
 ### Parity Check Bits Protection
 
+<!-- TODO continue the intuition with this case -->
+
+<div style="text-align: center; font-family: monospace; font-size: 1.5em;">
+1  0  ?  1  1  0  <span class="fragment" style="color:red;">?  1  ?</span>
+</div>
+
+- Consider our previous example:
+![](assets/ldpc_exa7.PNG){width=900px height=400px}
+
+- Assume that the erasures are as follows:
+
+
+
+
 - A natural question arises: how are the **parity check bits** protected, given that they are also subject to substitution errors?
 
 - The solution lies in the **structure of LDPC codes**:  
@@ -824,29 +960,23 @@ instead of partitioning the data into distinct parts, we can use overlapping pai
 
 - In the 1960s, Robert Gallager introduced a groundbreaking approach for this challenge — now known as LDPC codes (Low-Density Parity-Check codes).
 
-<!-- TODO(Atar): Visualize? -->
-
 ---
 
 ## Density and the Role of Overlap
 - Gallager showed how to **balance two competing goals**:
-  - **High recovery power** (which favors larger overlapping neighborhoods),
-  - With **low decoding complexity** (which favors smaller overlaps).
+  - Reducing the code's redundancy (which favors larger overlapping neighborhoods),
+  - With **low decoding complexity** and **High recovery power** (which favors smaller overlaps).
 
 - He introduced the concept of **density**, which is a measure of how many bits participate in each parity check:
   - **Higher density** means more overlap (stronger recovery),
   - **Lower density** means less overlap (faster decoding).
-
----
 
 :::{.smaller}
 ## Low Density
 
 ::: {.incremental}
 
-- Gallager showed that even **sparse** parity-check matrices can achieve strong error correction.
-
-- Low-density codes allow efficient **decoding algorithms** like belief propagation.
+- Gallager showed that even **sparse** parity-check matrices can achieve strong error correction, by using efficient **decoding algorithms** like belief propagation.
 
 - Sparsity reduces complexity while still maintaining performance close to capacity.
 
@@ -868,7 +998,7 @@ instead of partitioning the data into distinct parts, we can use overlapping pai
 
 - Each row has only a few non-zero entries, which mean that the pairity checks have low Density.
 
-- A vector $\bar{v}\in \{0,1\}^{nX1}$ is a codeward if and only if $Hv=\bar{0}$.
+- A vector $\bar{v}\in \{0,1\}^{nX1}$ is a codeward if $Hv=\bar{0}$.
 
 ### Example
 
@@ -883,16 +1013,264 @@ H =
 \end{bmatrix}
 $$
 
-::: {.fragment}
-Each row says: the sum (mod 2) of the marked bits must equal zero.  
-These constraints define the valid codewords.
-:::
+---
 
-## LDPC - Encoding "Algorithm"
+## Example - cont. {.smaller}
 
-## LtDPC - Decoding Algorithm 
-### Gallager’s bit-flipping algorihm
-  - Gallager’s bit-flipping algorithm (BSC)
+We use the same parity-check matrix:
+
+$$
+H =
+\begin{bmatrix}
+1 & 1 & 0 & 1 & 0 & 0 & 0 & 0\\
+0 & 1 & 1 & 0 & 0 & 0 & 0 & 1 \\
+1 & 0 & 0 & 0 & 0 & 1 & 1 & 0
+\end{bmatrix}
+$$
+
+Let’s check if the vector
+
+$$
+c =
+\begin{bmatrix}
+1 \\ 0 \\ 1 \\ 0 \\ 0 \\ 1 \\ 1 \\ 0
+\end{bmatrix}
+$$
+
+is a codeword by computing $Hc$:
+
+---
+
+### Computation {.smaller}
+
+We compute:
+
+<div style="font-size:0.6em;">
+
+$$
+Hc =
+\begin{bmatrix}
+1 & 1 & 0 & 1 & 0 & 0 & 0 & 0\\
+0 & 1 & 1 & 0 & 0 & 0 & 0 & 1 \\
+1 & 0 & 0 & 0 & 1 & 1 & 1 & 0
+\end{bmatrix}
+\begin{bmatrix}
+1 \\ 0 \\ 1 \\ 0 \\ 0 \\ 1 \\ 1 \\ 0
+\end{bmatrix}
+$$
+
+</div>
+
+$$
+\Downarrow
+$$
+
+<div style="font-size:0.8em;">
+\begin{align*}
+1\cdot x_1 + 0\cdot x_2 + 0\cdot x_4 &= 1 + 0 + 0 = 1 \\
+0\cdot x_2 + 1\cdot x_3 + 0\cdot x_8 &= 1 + 0 + 0 = 1 \\
+1\cdot x_1 + 0\cdot x_5 + 1\cdot x_6 + 1\cdot x_7 &= 1 + 0 + 1 + 1 = 1
+\end{align*}
+
+
+</div>
+
+<br>
+So this is **not** a codeword, because $Hc \neq 0$.
+
+---
+
+## LDPC Encoding
+
+- We introduced LDPC codes using a **parity-check matrix** $H$, where a vector $\bar{v}$ is a **codeword** if it satisfies:
+$$
+H\bar{v} = 0.
+$$
+
+- Our goal now is to generate such codewords from raw data — in other words, to define an **encoding matrix** $G$ such that:
+$$
+\bar{v} = G\bar{d}
+$$
+for some data vector $\bar{d}$, and the result $\bar{v}$ is guaranteed to satisfy $H\bar{v} = 0$.
+
+- Since any encoded vector $\bar{v}$ is a **linear combination of the columns of $G$**, This means that the set of all possible codewords is exactly the **column space** of $G$.
+  
+- Therefore, it must hold $HG=\{0\}$
+
+---
+
+- A common way to construct such a $G$ is to first put $H$ into **systematic form**:
+$$
+H = \left[ P \,\middle|\, I_m \right]
+$$
+where $P$ is a matrix of size $m \times k$ and $I_m$ is the identity matrix of size $m = n - k$.
+
+- Then, the generator matrix $G$ is defined as:
+$$
+G = \left[ I_k \,\middle|\, P^\top \right]
+$$
+where $I_k$ is the identity matrix of size $k$ and $P^\top$ is the transpose of $P$.
+
+
+## LDPC - Decoding Introduction
+
+- Checking if a vector is a valid codeword via matrix multiplication with $H$ can be computationally expensive.
+
+<br>
+
+- However, **$H$ is sparse** in LDPC codes.
+
+<br>
+
+- We can exploit this sparsity by representing $H$ as a **graph structure**, enabling more efficient decoding.
+
+<br>
+
+- We present the concept of tanner graphs.
+
+---
+
+## Tanner Graphs: Definition
+
+- A **Tanner graph** is a **bipartite graph** with:
+  - **Variable nodes**: one for each bit (column of $H$)
+  - **Check nodes**: one for each parity-check (row of $H$)
+- An edge connects variable node $v_j$ and check node $c_i$ if and only if $H_{i,j} = 1$.
+
+![](assets/tanner.PNG){width=900px height=400px fig-align="center"}
+
+---
+
+## Tanner Graphs : Example
+
+![](assets/tanner.PNG){width=900px height=400px fig-align="center"}
+
+
+<div class="fragment">
+The corresponding matrix is:
+$$
+H =
+\begin{bmatrix}
+1 & 1 & 0 & 0 & 1 & 0 \\
+0 & 0 & 1 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1 & 1
+\end{bmatrix}
+$$
+
+</div>
+
+---
+
+## Gallager’s Bit-Flipping Algorihm
+
+- Bit-Flipping is an iterative decoding algorithm, presented by Gallagher. <br> <br>
+- Bit-Flipping is used for decoding LDPC codes over a **Binary Symmetric Channel (BSC)**. <br><br>
+- The core idea of the algortihm is to flip bits that participate in **many unsatisfied parity checks**.
+
+---
+
+## Algorithm Overview
+
+1. **Input**: Received vector $\bar{r}$ (possibly corrupted), and parity-check matrix $H$.
+2. **Check**: For each parity check, compute whether it's satisfied usign Tanner graph.
+3. **Count**: For each bit, count how many unsatisfied checks it participates in.
+4. **Flip**: Bits involved in "enough" unsatisfied checks are flipped iteratively.
+5. **Repeat**: Iterate until all checks are satisfied or a max number of steps is reached.
+
+---
+
+## Example
+
+Let:
+$$
+H =
+\begin{bmatrix}
+1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 1 & 1 & 0 & 0 & 0 & 0 & 0 \\
+0 & 1 & 1 & 1 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1 & 0 & 1 &  \,0
+\end{bmatrix}
+\quad \bar{r} = [0\ 1\ 0\ 0\ 1\ 0\ 0]
+$$
+
+And the Tanner graph:
+
+![](assets/tanner2.PNG){width=800px height=270px fig-align="center"}
+
+
+---
+
+## Step 1: Compute Syndromes
+
+We check whether the pairity checks are satisfied:
+![](assets/tanner3.PNG){width=800px height=400px fig-align="center"}
+
+Almost all checks are unsatisfied! We count how many unsatisfied checks each bit participates in.
+
+---
+
+## Step 2: Flip Bits
+
+![](assets/tanner3.PNG){width=500px height=200px fig-align="center"}
+
+<div style="font-size:0.8em;">
+
+- Bit 1 appears in 1 unsatisfied check  
+- Bit 2 appears in 2 unsatisfied checks.
+- Bit 3 appears in 1 unsatisfied check. 
+- Bit 4 appears in 1 unsatisfied check.
+- Bit 5 appears in 3 unsatisfied checks.
+- Bit 6 appears in 1 unsatisfied check.
+- Bit 7 appears in 1 unsatisfied checks.
+
+Then we flip bit 5.
+
+</div>
+
+
+---
+
+## Step 2: Flip Bits
+
+![](assets/tanner4.PNG){width=520px height=220px fig-align="center"}
+
+<div style="font-size:0.8em;">
+- Bit 1 appears in 1 unsatisfied check  
+- Bit 2 appears in 3 unsatisfied checks.
+- Bit 3 appears in 2 unsatisfied check. 
+- Bit 4 appears in 1 unsatisfied check.
+- Bit 5 appears in 1 unsatisfied checks.
+- Bit 6 appears in 0 unsatisfied check.
+- Bit 7 appears in 0 unsatisfied checks.
+
+Then we flip bit 2.
+
+</div>
+
+---
+
+
+## Step 2: Flip Bits
+
+![](assets/tanner5.PNG){width=800px height=400px fig-align="center"}
+
+This is Our Codeword!
+
+
+
+---
+
+## Summary
+
+- Bit-Flipping is simple and intuitive.  
+- Works well with **sparse LDPC matrices**.  
+- Not optimal, but useful as a first decoding step or when low complexity is needed.
+
+</span>
+
+
 
 ## LDPC Decoding: Belief propagation algorithm
 
