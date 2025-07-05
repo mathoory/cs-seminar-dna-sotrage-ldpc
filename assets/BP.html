@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LDPC Sum‑Product Decoder – Step‑by‑Step Tanner Graph</title>
+  <style>
+    /* ==== Glass‑morphism UI (unchanged) =============================== */
+    body{font-family:Arial,Helvetica,sans-serif;margin:20px;min-height:100vh;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff}
+    .container{max-width:1180px;margin:0 auto;padding:24px;border-radius:16px;background:rgba(255,255,255,.12);backdrop-filter:blur(10px)}h1{text-align:center;margin:0 0 28px;text-shadow:2px 2px 4px rgba(0,0,0,.24)}
+    .input-section{background:rgba(255,255,255,.12);padding:20px;border-radius:12px;margin-bottom:24px}
+    .input-group{margin-bottom:16px}label{display:block;margin-bottom:6px;font-weight:600}
+    input[type=text],input[type=number]{width:100%;padding:9px;border:none;border-radius:6px;background:rgba(255,255,255,.9);color:#333;font-size:14px}
+    .controls{text-align:center;margin:22px 0}button{background:linear-gradient(45deg,#ff6b6b,#ffa500);color:#fff;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-size:16px;margin:5px;transition:transform .2s}button:hover{transform:translateY(-2px)}button:disabled{background:#666;cursor:not-allowed;transform:none}
+    .canvas-container{background:rgba(255,255,255,.9);border-radius:12px;padding:16px}
+    #tannerCanvas{border:2px solid #333;border-radius:6px;background:#fff;display:block;margin:0 auto}
+    .info-panel{background:rgba(255,255,255,.12);padding:16px;border-radius:12px;margin-top:18px}
+    .iteration-info{text-align:center;font-weight:700;margin-bottom:14px;font-size:18px}
+    .results{font-family:monospace;white-space:pre-wrap}
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🔗 LDPC Sum‑Product Decoder – Interactive Tanner Graph</h1>
+
+  <div class="input-section">
+    <div class="input-group"><label for="originalCode">Original Codeword (c)</label><input id="originalCode" type="text" value="0 0 1 0 1 1"/></div>
+    <div class="input-group"><label for="receivedCode">Received Word (y)</label><input id="receivedCode" type="text" value="1 0 1 0 1 1"/></div>
+    <div class="input-group"><label for="crossoverProb">BSC Crossover Probability (p)</label><input id="crossoverProb" type="number" value="0.25" step="0.01" min="0" max="1"/></div>
+    <div class="input-group"><label for="maxIterations">Maximum Iterations</label><input id="maxIterations" type="number" value="6" min="1" max="20"/></div>
+  </div>
+
+  <div class="controls">
+    <button id="initBtn">Initialize Decoder</button>
+    <button id="stepBtn"  disabled>Step</button>
+    <button id="autoBtn"  disabled>Auto Decode</button>
+    <button id="resetBtn" disabled>Reset</button>
+  </div>
+
+  <div class="canvas-container"><canvas id="tannerCanvas" width="900" height="460"></canvas></div>
+
+  <div class="info-panel">
+    <div id="iterationInfo" class="iteration-info">Click “Initialize Decoder”</div>
+    <div id="results" class="results"></div>
+  </div>
+</div>
+
+<script>
+if(!Math.atanh){Math.atanh=x=>.5*Math.log((1+x)/(1-x));}
+
+/***** Code & graph *****/
+const H=[[1,1,0,1,0,0],[0,1,1,0,1,0],[1,0,0,0,1,1],[0,0,1,1,0,1]];
+const m=H.length,n=H[0].length;
+
+/***** Canvas geometry *****/
+const canvas=document.getElementById('tannerCanvas');const ctx=canvas.getContext('2d');
+const VR=26,CSZ=42,VROW_Y=120,CROW_Y=340,VX0=100,VSP=120,CX0=150,CSP=190;
+const vNodes=Array.from({length:n},(_,i)=>({x:VX0+i*VSP,y:VROW_Y}));
+const cNodes=Array.from({length:m},(_,j)=>({x:CX0+j*CSP,y:CROW_Y}));
+
+/***** Decoder state *****/
+let originalCode=[],receivedCode=[],p=0.25,maxIter=6;
+let r=[], M=[], E=[], L=[], decoded=[], partialL=[];
+let currIter=0,phase='init',converged=false,currentCheck=0;
+let varRecv,checkSent;
+
+/***** Animation *****/
+let animMsgs=[],inFlight=false,autoTimer=null;
+
+/***** Utils *****/
+const parseBits=str=>str.trim().split(/\s+/).map(Number);
+function bscLLR(bit){return bit?Math.log(p/(1-p)):Math.log((1-p)/p);}  // y-> LLR
+
+/***** Init helpers *****/
+function computeLLRs(){r=receivedCode.map(bscLLR);}
+function initMessages(){
+  M=Array.from({length:m},()=>Array(n).fill(0));
+  E=Array.from({length:m},()=>Array(n).fill(0));
+  L=r.slice();partialL=r.slice();
+  for(let j=0;j<m;j++)for(let i=0;i<n;i++)if(H[j][i])M[j][i]=r[i];
+}
+
+/***** Drawing *****/
+function drawGraph(){ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle='#ddd';ctx.lineWidth=2;
+  for(let j=0;j<m;j++)for(let i=0;i<n;i++)if(H[j][i]){const v=vNodes[i],c=cNodes[j];ctx.beginPath();ctx.moveTo(v.x,v.y);ctx.lineTo(c.x,c.y);ctx.stroke();}
+  drawAnimMsgs();
+  vNodes.forEach((_,i)=>drawVNode(i));
+  cNodes.forEach((_,j)=>drawCNode(j));
+}
+function drawVNode(i){const n=vNodes[i],llr=partialL[i]??0;
+  ctx.beginPath();ctx.arc(n.x,n.y,VR,0,2*Math.PI);ctx.fillStyle=llr>0?'#4ecdc4':'#ff6b6b';ctx.fill();ctx.strokeStyle='#333';ctx.lineWidth=2;ctx.stroke();
+  ctx.fillStyle='#fff';ctx.font='bold 15px Arial';ctx.textAlign='center';ctx.fillText(`v${i}`,n.x,n.y+5);
+  ctx.fillStyle='#333';ctx.font='12px Arial';ctx.fillText(`L=${llr.toFixed(2)}`,n.x,n.y+46);
+  if(varRecv&&varRecv[i].length){ctx.fillText(varRecv[i].map(v=>v.toFixed(2)).join(', '),n.x,n.y+62);}
+}
+function drawCNode(j){const c=cNodes[j];
+  ctx.fillStyle='#ffa500';ctx.fillRect(c.x-CSZ/2,c.y-CSZ/2,CSZ,CSZ);ctx.strokeStyle='#333';ctx.lineWidth=2;ctx.strokeRect(c.x-CSZ/2,c.y-CSZ/2,CSZ,CSZ);
+  ctx.fillStyle='#fff';ctx.font='bold 15px Arial';ctx.textAlign='center';ctx.fillText(`c${j}`,c.x,c.y+5);
+  if(checkSent&&checkSent[j]){ctx.fillStyle='#333';ctx.font='11px Arial';ctx.fillText(checkSent[j].map(o=>`v${o.to}:${o.val.toFixed(2)}`).join(' '),c.x,c.y+CSZ/2+14);}
+}
+
+/***** Animation helpers *****/
+function endPts(fromVar,vIdx,cIdx){const v=vNodes[vIdx],c=cNodes[cIdx];const dx=c.x-v.x,dy=c.y-v.y,d=Math.hypot(dx,dy);
+  const sx=fromVar?v.x+dx/d*VR:c.x-dx/d*CSZ/2, sy=fromVar?v.y+dy/d*VR:c.y-dy/d*CSZ/2;
+  const ex=fromVar?c.x-dx/d*CSZ/2:v.x+dx/d*VR, ey=fromVar?c.y-dy/d*CSZ/2:v.y+dy/d*VR;return{sx,sy,ex,ey};}
+function launchAnim(msgs,fromVar){if(inFlight) return;inFlight=true;animMsgs=[];
+  msgs.forEach(m=>{const v=fromVar?m.from:m.to,c=fromVar?m.to:m.from;const ep=endPts(fromVar,v,c);animMsgs.push({...ep,t:0,col:fromVar?'#4ecdc4':'#ff6b6b',val:m.val});});
+  const DUR=1000,start=performance.now();function tick(now){const p=Math.min((now-start)/DUR,1);animMsgs.forEach(a=>a.t=p);drawGraph();if(p<1)requestAnimationFrame(tick);else{inFlight=false;animMsgs=[];drawGraph();}}requestAnimationFrame(tick);}
+function drawAnimMsgs(){animMsgs.forEach(a=>{const x=a.sx+(a.ex-a.sx)*a.t,y=a.sy+(a.ey-a.sy)*a.t;ctx.beginPath();ctx.arc(x,y,8,0,2*Math.PI);ctx.fillStyle=a.col;ctx.fill();ctx.strokeStyle='#333';ctx.lineWidth=1;ctx.stroke();ctx.fillStyle='#333';ctx.font='10px Arial';ctx.textAlign='center';ctx.fillText(a.val.toFixed(2),x,y-12);});}
+
+/***** Decoding steps *****/
+function variablePhase(){ // send all V→C messages at once
+  const msgs=[];
+  for(let i=0;i<n;i++){let sumC=0;for(let j=0;j<m;j++)if(H[j][i])sumC+=E[j][i];
+    for(let j=0;j<m;j++)if(H[j][i]){const newM=r[i]+sumC-E[j][i];M[j][i]=newM;msgs.push({from:i,to:j,val:newM});}}
+  launchAnim(msgs,true);
+  // prepare for check phase details
+  phase='check';currentCheck=0;varRecv=Array.from({length:n},()=>[]);checkSent=Array.from({length:m},()=>null);
+}
+function singleCheckStep(){const j=currentCheck;const msgs=[];const sent=[];
+  for(let i=0;i<n;i++)if(H[j][i]){let prod=1;for(let k=0;k<n;k++)if(k!==i&&H[j][k])prod*=Math.tanh(M[j][k]/2);prod=Math.max(Math.min(prod,0.999999),-0.999999);
+    const newE=2*Math.atanh(prod);E[j][i]=newE;msgs.push({from:j,to:i,val:newE});sent.push({to:i,val:newE});
+    varRecv[i].push(newE);partialL[i]+=newE;}
+  checkSent[j]=sent;launchAnim(msgs,false);
+  currentCheck++;
+  if(currentCheck>=m){phase='total';}
+}
+function totalPhase(){// compute final posterior & convergence
+  L=partialL.slice();decoded=L.map(llr=>llr<0?1:0);
+  converged=H.every((row)=>row.reduce((s,val,i)=>s^(val&decoded[i]),0)===0);
+  currIter++;phase=converged?'done':'variable';}
+
+function step(){if(inFlight||converged||currIter>=maxIter) return;
+  if(phase==='variable') variablePhase();
+  else if(phase==='check') singleCheckStep();
+  else totalPhase();
+  updateUI();}
+function autoDecode(){if(converged) return;step();if(!converged&&currIter<maxIter)autoTimer=setTimeout(autoDecode,1200);} // ~anim time + margin
+
+/***** UI *****/
+const initBtn=document.getElementById('initBtn'),stepBtn=document.getElementById('stepBtn'),autoBtn=document.getElementById('autoBtn'),resetBtn=document.getElementById('resetBtn');
+initBtn.onclick=()=>{try{
+  originalCode=parseBits(document.getElementById('originalCode').value);
+  receivedCode=parseBits(document.getElementById('receivedCode').value);
+  p=parseFloat(document.getElementById('crossoverProb').value);
+  maxIter=parseInt(document.getElementById('maxIterations').value);
+  if(originalCode.length!==n||receivedCode.length!==n)throw new Error(`Codewords must have ${n} bits.`);
+  computeLLRs();initMessages();currIter=0;phase='variable';converged=false;clearTimeout(autoTimer);
+  stepBtn.disabled=false;autoBtn.disabled=false;resetBtn.disabled=false;drawGraph();updateUI();}
+  catch(e){alert(e.message);}};
+stepBtn.onclick=()=>step();autoBtn.onclick=()=>{if(!inFlight)autoDecode();};
+resetBtn.onclick=()=>{clearTimeout(autoTimer);stepBtn.disabled=autoBtn.disabled=resetBtn.disabled=true;ctx.clearRect(0,0,canvas.width,canvas.height);currIter=0;converged=false;phase='init';document.getElementById('iterationInfo').textContent='Click “Initialize Decoder”';document.getElementById('results').textContent='';};
+
+function updateUI(){const iterInfo=document.getElementById('iterationInfo');const res=document.getElementById('results');
+  if(converged)iterInfo.textContent=`✓ Converged after ${currIter} iteration(s).`;
+  else if(phase==='variable')iterInfo.textContent=`Iteration ${currIter+1}: Variable → Check (all vars)`;
+  else if(phase==='check')iterInfo.textContent=`Iteration ${currIter+1}: Check node c${currentCheck}`;
+  else iterInfo.textContent=`Iteration ${currIter}: aggregating totals`;
+  res.textContent=`partial L: [${partialL.map(v=>v.toFixed(2)).join(', ')}]\n`+
+                  `Hard decision: [${decoded.join(' ')}]`;
+  drawGraph();}
+
+// initial blank
+drawGraph();
+</script>
+</body>
+</html>
