@@ -28,19 +28,19 @@ revealjs-plugins:
 
 ## Background
 
-<span style="font-size:0.7em"> In DNA-based data storage, there are two critical challenges: </span>
+<span style="font-size:0.6em"> In DNA-based data storage, there are two critical challenges: </span>
 
 ::: {.incremental}
 
-- <span style="font-size:0.7em">**Write cost** — how much synthetic DNA we need to store one bit of information. </span>
-- <span style="font-size:0.7em">**Read cost** — how many reads are needed to reliably recover that bit.</span>
-
-
-<span style="font-size:0.7em" class= "fragment"> These two costs are closely related, and thus, one of the most important problems in DNA data storage is finding an effective tradeoff between them. </span>
+- <span style="font-size:0.6em">**Write cost** — how much synthetic DNA we need to store one bit of information. </span>
+- <span style="font-size:0.6em">**Read cost** — how many reads are needed to reliably recover that bit.</span>
 
 <div style="text-align: center;">
   <img src="assets/write_read_proc.PNG" width="400px" height="200px" class="fragment">
 </div>
+
+<span style="font-size:0.6em" class= "fragment"> These two costs are closely related, and thus, one of the most important problems in DNA data storage is finding an effective tradeoff between them. </span>
+
 
 :::
 
@@ -50,7 +50,7 @@ revealjs-plugins:
 
 ::: {.incremental}
 
-- Why , in your opinion, are the cost of write and cost of read closely related? how does the write cost affect the read cost?
+- Why, in your opinion, are the cost of write and cost of read closely related? how does the write cost affect the read cost?
 &nbsp; &nbsp;  
 - What are the main factors that affect the cost of write?  
 &nbsp; &nbsp;  
@@ -80,7 +80,7 @@ Since the cost of write and cost of read are strongly correlated, this paper aim
   Average number of encoded bits synthesized per information bit:
 
   $$
-  c_w = \frac{\text{#Synthesized bits}}{\text{#Data}}
+  c_w = \frac{\text{#Synthesized bits}}{\text{#Data bits}}
   $$
 
 * **Cost of Read**
@@ -217,65 +217,11 @@ Since the cost of write and cost of read are strongly correlated, this paper aim
 - The reads are subject to:
 
   - <strong>Substitution errors</strong> — each sampled bit is flipped with probability $\epsilon$ (modeled as a BSC, discussed later).
-  - <strong>Sampling variability</strong> — the number of times each strand is sampled is random and follows a Poisson distribution.
+  - <strong>Sampling variability</strong> — the number of times each strand is sampled is random and follows a Poisson distribution with $\lambda=\frac{c_r}{c_w}$.
 
 ![](assets/model_process4.PNG){width=800px height=150px fig-align="center"}
 
 </div>
-
-
----
-
-## Data Distribution
-
-<div style="font-size:0.8em; line-height: 1.2;">
-
-- For the sake of the theoretical analysis, it is assumed that the sampled DNA strands follow a Poisson distribution.
-- Does not account for synthesis or sequencing biases, but still provides significant insights into strand sampling behavior.
-
-#### Poisson Recap:
-- The Poisson distribution models the number of times an event occurs in a fixed interval, given a known average rate $\lambda$.
-- The probability mass function is given by:
-
-</div>
-
-<div style="font-size:0.8em">
-$$
-P(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}
-$$
-
-</div>
-
-
-## Why Poisson?
-
-::: {.incremental}
-
-<div style="font-size:0.7em; line-height: 1.1;">
-
-- The authors assume that each of the $n \cdot c_r$ sequenced strands is selected independently and uniformly at random from the $n \cdot c_w$ synthesized strands — with replacement.</span>
-
-- This results in a **multinomial distribution**: each of the $n \cdot c_w$ strands has a fixed probability $\frac{1}{n \cdot c_w}$ of being chosen in any given draw.</span>
-
-- When the number of synthesized strands is large, the probability of selecting any particular strand becomes very small, but the number of trials remains large.</span>
-
-- In this case, the multinomial distribution can be approximated with **independent Poisson distributions** where:</span>
-  Each strand is independently selected according to a $\text{Poisson}(\lambda)$ distribution where:
-
-</div>
-
-
-::: {.fragment}
-<div style="font-size: 0.7em">
-$$
-\lambda = \text{#Samples} \cdot \text{Probability} = \frac{nc_r}{nc_w} = \frac{c_r}{c_w}
-$$
-</div>
-:::
-
-
-:::
-
 
 ::: {.center}
 # 2 Communication and Information 101 {data-name="Theory"}
@@ -412,14 +358,14 @@ $$
 
 -->
 
-## Capacity of a Binary Erasure Channel (BEC)
+## Capacity
   
 
 <div style="font-size:0.9em; line-height: 1.2;">
 
-- Capacity is the highest rate at which information can be reliably transmitted over a communication channel.<br><br>
+- Capacity is the highest rate at which information can be reliably transmitted over a communication channel.
 
-- It quantifies the maximum rate that can be recovered reliably from the channel's output, per transmitted bit.<br><br>
+- Given $n$ data bits transmitted through a channel, the capacity quantifies the maximum number of bits that can be reliably recovered from the output.
 
 - For a Binary Erasure Channel (BEC) with erasure probability $\varepsilon$, the capacity is:  
 $$
@@ -438,11 +384,11 @@ $$
 
 - Recall that the write cost $c_w$ is defined as:  
   $$
-  c_w = \frac{|\text{SYN}|}{|\text{DATA}|}
+  c_w = \frac{\text{#Synthesized bits}}{\text{#Data bits}}
   $$
   which implies:
   $$
-  \frac{1}{c_w} = \frac{|\text{DATA}|}{|\text{SYN}|} = R
+  \frac{1}{c_w} = \frac{\text{#Data bits}}{\text{#Synthesized bits}} = R
   $$
 
 - In other words, the **inverse write cost** captures how much information is packed into each encoded bit, which is the code rate.
@@ -488,7 +434,7 @@ Assume we have a BEC with $\varepsilon=0.6$ and an encoder with $c_w=2$.
 
 </div>
 
-![](assets/full_proc.PNG){width=1000px height=180px fig-align="center"}
+![](assets/full_proc.PNG){width=1200px height=160px fig-align="center"}
 
 
 
@@ -509,7 +455,7 @@ Assume we have a BEC with $\varepsilon=0.6$ and an encoder with $c_w=2$.
 
 - If a strand is not observed in the read process, we effectively have an **erasure**.<br><br>
 
-- Thus, the model can be modeled as a **Binary Erasure Channel (BEC)** with erasure probability: $\varepsilon =e^{-c_r / c_w}$.
+- Thus, the model can be modeled as a **Binary Erasure Channel (BEC)** with erasure probability: $\varepsilon' =e^{-c_r / c_w}$.
 
 </div>
 
@@ -519,7 +465,7 @@ Assume we have a BEC with $\varepsilon=0.6$ and an encoder with $c_w=2$.
 
 <div style="font-size:0.7em; line-height: 1.2;">
 
-- Since the capacity of the BEC must be greater or equal to the rate of the code, we get that: 
+- By Shannon's Theorem, the capacity of the BEC must be greater or equal to the rate of the code,Therefore: 
 
 $$
 R=\frac{1}{c_w}\leq 1-e^{-\frac{c_r}{c_w}}= C
@@ -549,7 +495,7 @@ $$
 - The probability that the samples of the bit are ($k_0,k_1$) given that the bit has value 0 is:
 
 $$
-P((k_0,k_1)|0)=\frac{e^{-\lambda}\lambda^{k_0+k_1}}{(k_0+k_1)!} {k_0+k_1\choose k_1} (1-\varepsilon)^{k_0}\varepsilon^{k_1}
+P((k_0,k_1)|0)=\mathbb{P}[X=k] {k_0+k_1\choose k_1} (1-\varepsilon)^{k_0}\varepsilon^{k_1}
 $$
 
 
@@ -562,10 +508,10 @@ $$
 <div style="font-size:0.8em; line-height: 1.2;">
 
 $$
-P((k_0,k_1)|0)=\frac{e^{-\lambda}\lambda^{k_0+k_1}}{(k_0+k_1)!} {k_0+k_1\choose k_1} (1-\varepsilon)^{k_0}\varepsilon^{k_1}
+P((k_0,k_1)|0)=\mathbb{P}[X=k] {k_0+k_1\choose k_1} (1-\varepsilon)^{k_0}\varepsilon^{k_1}
 $$
 
-* The term $\frac{e^{-\lambda}\lambda^{k_0+k_1}}{(k_0+k_1)!}$ is the probability that a poisson random variable gets the value $k_0+k_1$. 
+* The term $\mathbb{P}[X=k]$ is the probability that a poisson random variable gets the value $k_0+k_1=k$. 
 
 * the term ${k_0+k_1\choose k_1} (1-\varepsilon)^{k_0}\varepsilon^{k_1}$ is the binomial probability that there are $k_1$ errors out of $k_0+k_1$ samples. 
 
@@ -668,6 +614,16 @@ The following example illustrates how the calculations are performed.
 ::: {.center}
 # 4 Comparison of coding strategies {data-name="Encoding Strategies"}
 :::
+
+## Coding Strategies - Introduction
+
+When designing an encoding and decoding scheme, we must account for **two primary sources of error**:
+
+- **Outer Code Errors** — Since the data is divided into multiple strands, some strands may never be sampled or sequenced. The outer code must handle such **erasure errors** and enable recovery of the missing data.
+
+- **Inner Code Errors** — During synthesis and sequencing, strands may undergo **substitution**, **insertion**, or **deletion** errors. The inner code must correct these errors to recover the original encoded information.
+
+---
 
 ## Two types of coding strategies
 
@@ -788,13 +744,7 @@ Single Large-Block LDPC
 
 
 
-## Coding Strategies - Introduction
 
-When designing an encoding and decoding scheme, we must account for **two primary sources of error**:
-
-- **Outer Code Errors** — Since the data is divided into multiple strands, some strands may never be sampled or sequenced. The outer code must handle such **erasure errors** and enable recovery of the missing data.
-
-- **Inner Code Errors** — During synthesis and sequencing, strands may undergo **substitution**, **insertion**, or **deletion** errors. The inner code must correct these errors to recover the original encoded information
 
 <!--
 ## Coding Strategies
@@ -985,83 +935,14 @@ Can our pairity check bit recover both erasured bits?
 
 ---
 
-## Naive Idea
-
-<div style="font-size:0.6em; line-height: 1.2;">
-
-We can parttion the message into 2 distinct parts, and add a pairity check bit for every part.
-
-![](assets/naive1.PNG){width=500px height=240px fig-align="center"}
-
-</div>
-
----
-
-## Naive Idea
-
-<div style="font-size:0.6em; line-height: 1.2;">
-We can parttion the message into 2 distinct parts, and add a pairity check bit for every part.
-
-
-![](assets/naive2.PNG){width=500px height=240px fig-align="center"}
-
-</div>
----
-
-## Naive Idea
-
-<div style="font-size:0.6em; line-height: 1.2;">
-
-We can parttion the message into 2 distinct parts, and add a pairity check bit for every part.
-
-![](assets/naive3.PNG){width=500px height=240px fig-align="center"}
-
-</div>
-
-
----
-
-## Naive Idea
-
-<div style="font-size:0.6em; line-height: 1.2;">
-
-We can parttion the message into 2 distinct parts, and add a pairity check bit for every part.
-
-![](assets/naive4.PNG){width=500px height=240px fig-align="center"}
-
-</div>
-
----
-
-## Naive Idea
-
-<div style="font-size:0.6em; line-height: 1.2;">
-
-We can parttion the message into 2 distinct parts, and add a pairity check bit for every part.
-
-![](assets/naive5.PNG){width=500px height=240px fig-align="center"}
-
-<span class="fragment"> So now, when the same erasures as before will occur:
-<div style="text-align: center; font-family: monospace; font-size: 1.5em;">
-1 ? 0 1 ? 0 <span style="color:red;">1 0</span>
-</div><br>
-We will be able to recover the erasured bits.
-<br><br>
-</span>
-<span class="fragment">
-Are we done? 
-</span>
-
-</div>
-
----
 
 ## Possible Solution
 ### Overlapping Pairity Checks
 
 <div style="font-size:0.7em; line-height: 1.2;">
 
-instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
+We can group bits from the strand into subsets and apply parity checks to each group.
+
 
 - Consider the following 4-bit example:<br>
 ![](assets/ldpc_exa1.PNG){width=700px height=300px}
@@ -1077,7 +958,7 @@ instead of partitioning the data into distinct parts, we can use overlapping pai
 
 <div style="font-size:0.7em; line-height: 1.2;">
 
-instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
+We can group bits from the strand into subsets and apply parity checks to each group.
 
 - Consider the following 4-bit example:<br>
 ![](assets/ldpc_exa2.PNG){width=700px height=300px}
@@ -1090,7 +971,7 @@ instead of partitioning the data into distinct parts, we can use overlapping pai
 
 <div style="font-size:0.7em; line-height: 1.2;">
 
-instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
+We can group bits from the strand into subsets and apply parity checks to each group.
 
 - Consider the following 4-bit example:<br>
 ![](assets/ldpc_exa3.PNG){width=700px height=300px}
@@ -1104,7 +985,7 @@ instead of partitioning the data into distinct parts, we can use overlapping pai
 
 <div style="font-size:0.7em; line-height: 1.2;">
 
-instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
+We can group bits from the strand into subsets and apply parity checks to each group.
 
 - Consider the following 4-bit example:<br>
 ![](assets/ldpc_exa4.PNG){width=700px height=300px}
@@ -1118,7 +999,7 @@ instead of partitioning the data into distinct parts, we can use overlapping pai
 
 <div style="font-size:0.7em; line-height: 1.2;">
 
-instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
+We can group bits from the strand into subsets and apply parity checks to each group.
 
 - Consider the following 4-bit example:<br>
 ![](assets/ldpc_exa5.PNG){width=700px height=300px}
@@ -1132,7 +1013,7 @@ instead of partitioning the data into distinct parts, we can use overlapping pai
 
 <div style="font-size:0.7em; line-height: 1.2;">
 
-instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
+We can group bits from the strand into subsets and apply parity checks to each group.
 
 - Consider the following 4-bit example:<br>
 ![](assets/ldpc_exa6.PNG){width=700px height=300px}
@@ -1146,7 +1027,7 @@ instead of partitioning the data into distinct parts, we can use overlapping pai
 
 <div style="font-size:0.7em; line-height: 1.2;">
 
-instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
+We can group bits from the strand into subsets and apply parity checks to each group.
 
 - Consider the following 4-bit example:<br>
 ![](assets/ldpc_exa7.PNG){width=670px height=290px}
@@ -1220,27 +1101,17 @@ This allows us to protect and recover even the **parity-check bits themselves**.
 
 ## Density and the Role of Overlap
 
+<div style="font-size:0.7em; line-height: 1.2;">
+
 - Therefore, our goal is to design a parity-based error correction code that:
   - Has **low write cost**,  
   - Enables **fast and efficient decoding**,  
   - **recovers erasures effectively**.
 
-- In the 1960s, Robert Gallager introduced a groundbreaking approach for this challenge — now known as LDPC codes (Low-Density Parity-Check codes).
+- In the 1960s, Robert Gallager introduced the term of **density**, as shown in the image below.
 
 
-
----
-
-## Density and the Role of Overlap
-
-<div style="font-size:0.7em; line-height: 1.2;">
-- Gallager showed how to **balance two competing goals**:
-  - Reducing the code's redundancy and **High recovery power** (which favors larger overlapping neighborhoods),
-  - With **low decoding complexity** (which favors smaller overlaps).
-
-- He introduced the concept of **density**, which is a measure of how many bits participate in each parity check:
-  - **Higher density** means more overlap (lower redundancy),
-  - **Lower density** means less overlap (faster decoding).
+![](assets/density.PNG){width=800px height=290px fig-align="center"}
 
 </div>
 
@@ -1250,7 +1121,7 @@ This allows us to protect and recover even the **parity-check bits themselves**.
 
 ::: {.incremental}
 
-- Gallager showed that even **sparse** parity-checks can achieve strong error correction, by using efficient **decoding algorithms** like belief propagation.
+- Gallager showed that even low density parity-checks can achieve strong error correction, by using efficient **decoding algorithms** like belief propagation.
 
 - Sparsity reduces the decoding complexity while still maintaining performance close to Shannon's limit.
 
@@ -1382,8 +1253,9 @@ $$
 
 </div>
 
----
+<!--
 
+---
 ## LDPC Theory
 ### Encoding Algorithm
 
@@ -1408,7 +1280,7 @@ $$
 
 </div>
 
-
+-->
 
 
 
