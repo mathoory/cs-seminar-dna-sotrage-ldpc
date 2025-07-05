@@ -1032,9 +1032,6 @@ These values are the initial messages $\tilde L_i$ fed into the decoder.
 - **Indel rescue:** heuristic tries all single-insertion / deletion variants until BCH passes, recovering ∼5–10 % extra reads.  
 - **Computational win:** clustering by exact index is O(1); avoids expensive similarity clustering.
 
-
----
-
 ## Multiple-Sequence Alignment (MSA) {.smaller}
 
 - Run **per index bucket** (≈ 3–10 reads, 150 bp) → tiny, fast alignments.  
@@ -1042,6 +1039,34 @@ These values are the initial messages $\tilde L_i$ fed into the decoder.
 - Outputs **base counts** \((k_0,k_1)\) → converted to soft LLRs for LDPC.  
 - If consensus length off, use the in-strand **“AGT” marker** to trim half and mark the rest erasures.  
 - Net result: LDPC sees a large code-word with *substitutions + explicit erasures* it can correct simultaneously.
+    
+## Is MSA a Bottleneck?
+
+> With thousands of strands, won’t multiple-sequence alignment blow up?
+
+Theoretical cost (MUSCLE algorithm)
+
+For $N$ sequences of length $L$ bases (Egdar, 2004):
+$$
+\mathcal{O}\!\left(N^{2}L\;+\;N L^{2}\right)
+$$
+<div style="font-size:0.5em;">
+Edgar, R. C. (2004). *MUSCLE: multiple sequence alignment with high accuracy and high throughput.* *Nucleic Acids Research, 32*(5), 1792-1797. https://doi.org/10.1093/nar/gkh340
+</div>
+
+## Why it stays cheap in the suggested pipeline
+
+$$
+\mathcal{O}\!\left(N^{2}L\;+\;N L^{2}\right)
+$$
+
+| Parameter | Typical value | Work per MSA call |
+|-----------|--------------:|-------------------|
+| Coverage per oligo (*N*) | 3 – 12 | **tiny N** |
+| Oligo length (*L*)       | 100 bp | **tiny L** |
+| Calls per decode         | 35-124k | linear growth |
+
+→ LDPC decoding, not MSA, dominates CPU time.
 
 ## Synchronization Marker
 
@@ -1328,8 +1353,93 @@ These soft LLRs seed the LDPC **belief-propagation** decoder instead of hard 0/1
 # 7 Experimental results {data-name="Results"}
 :::
 
-<!-- TODO(Add drawing of the experiment - repeat until 20\20) -->
+## Writing and reading costs
+- **Writing cost $c_w$**: how many bases we need to synthesize to
+  write one information bit.
+- **Reading cost $c_r$**: how many bases we need to read to decode
+  one information bit.
 
+## Writing Cost $c_w$: what we pay to synthesize
+
+$$
+c_w \;=\;
+\frac{\text{bases synthesized}}
+     {\text{file size (bits)}}
+$$
+
+- **Bases synthesized** = $\text{# oligos} \times (\text{oligo length} - \text{primers})$  
+  *primers are bought once and reused — excluded from $c_w$*
+
+*Unit: bases / information bit — lower is cheaper to write.*
+
+---
+
+### Example – Experiment 1 {.smaller}
+
+| quantity | value |
+|----------|------:|
+| \# oligonucleotides | 11 710 |
+| Oligo length | 150 bp |
+| Primers | 50 bp |
+| Synthesized payload / oligo | $150-50 = 100$ bp |
+| File size | 160 000 B = 1 280 000 bits |
+
+$$
+\text{bases synthesized} =
+11\,710 \times 100 = 1.171\times10^{6}
+$$
+
+$$
+c_w =
+\frac{1.171\times10^{6}}
+     {1.28\times10^{6}}
+   = 0.91 \;\text{bases/bit}
+$$
+
+(✔) Matches Table 1
+
+## Reading Cost $c_r$: what we pay to read
+
+1. **Physical coverage** – lab metric
+$$
+\text{Raw coverage} =
+\frac{\text{total aligned reads}}
+     {\text{distinct oligonucleotides}}
+$$
+
+2. **Reading cost $c_r$** – information metric
+$$
+c_r =
+\frac{\text{bases sequenced for a guaranteed decode}}
+     {\text{file size (bits)}}
+$$
+*Unit: bases / bit – compare schemes with different writing cost $c_w$.*
+
+**How do we find the numerator?**
+
+*Empirical threshold:* randomly subsample the read pool until decoding works **20 / 20 times** → that read count is “min reads for decode”.
+
+
+## Concrete example – Experiment 1
+
+| quantity | value |
+|----------|------:|
+| Min. reads (20/20 decode) | 35 000 |
+| Oligo length | 150 bp |
+| Primers | 2 × 25 bp |
+| Payload / read | 150 – 50 = 100 bp |
+| File size | 160 000 B = 1 280 000 bits |
+
+$$
+\text{bases read}=35\,000\times100=3.5\times10^{6}
+$$
+
+$$
+c_r = \frac{3.5\times10^{6}}{1.28\times10^{6}}
+     = 2.73\ \text{bases/bit}
+$$
+
+(✔) Matches Table 1.
 
 ## Write/read costs (Fig. 8 / Table 1) {.smaller}
 
@@ -1352,6 +1462,18 @@ These soft LLRs seed the LDPC **belief-propagation** decoder instead of hard 0/1
 
 </div>
 
+
+
+## The ugly: experiment 9 {.smaller}
+
+| Exp. No. | LDPC Redundancy | BCH Parameter | Index Length (bp) | Sync Marker | Sync Pos. | File Type | File Size (bytes) | No. of Oligos | Writing Cost (bases/bit) |
+|----------|-----------------|---------------|-------------------|-------------|-----------|-----------|-------------------|---------------|--------------------------|
+| 9        | 0.1             | 1             | 10                | None        | –         | Text      | 286,432           | 14,094        | 0.62                     |
+
+For **Experiment 9**, which utilized the weakest error correction settings (0.1 LDPC Redundancy), a definitive "minimum coverage for decoding" is **not reported**.
+
+*   The decoding process **did not succeed for 20 out of 20 trials**, even when very high reading costs were applied
+*   While decoding *did* succeed for some fraction of trials at reading costs above 10 bases/bit, it did not meet the consistent success criteria (20/20 trials) required for reporting a minimum value
 
 ## Error profile (Fig. 9)
 ::: {.r-stack style="height:80vh; display:flex; flex-direction:column; justify-content:center; align-items:center;"}
