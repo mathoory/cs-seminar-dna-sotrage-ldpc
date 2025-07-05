@@ -210,22 +210,25 @@ Since the cost of write and cost of read are strongly correlated, this paper aim
 
 
 ## Model Definition - cont.
-- <span style="font-size:0.6em"> It is assumed, for simplicity, that the decoder has access to the index of each strand, and that deletion and insertion errors are ignored. We later explain how the authors overcame this in practice. </span>
 
-- <span style="font-size:0.6em" > The reads are subject to:</span>
+<div style="font-size:0.8em; line-height: 1.2;">
+- It is assumed, for simplicity, that the decoder has access to the index of each strand, and that deletion and insertion errors are ignored. We later explain how the authors overcame this in practice. 
 
-  - <span style="font-size:0.6em"><strong>Substitution errors</strong> — each sampled bit is flipped with probability $\epsilon$ (modeled as a BSC, discussed later).</span>
-  - <span style="font-size:0.6em"><strong>Sampling variability</strong> — the number of times each strand is sampled is random and follows a Poisson distribution.</span>
+- The reads are subject to:
 
+  - <strong>Substitution errors</strong> — each sampled bit is flipped with probability $\epsilon$ (modeled as a BSC, discussed later).
+  - <strong>Sampling variability</strong> — the number of times each strand is sampled is random and follows a Poisson distribution.
 
-![](assets/model_process4.PNG){width=700px height=120px fig-align="center"}
+![](assets/model_process4.PNG){width=800px height=150px fig-align="center"}
+
+</div>
 
 
 ---
 
 ## Data Distribution
 
-<div style="font-size:0.9em; line-height: 1.2;">
+<div style="font-size:0.8em; line-height: 1.2;">
 
 - For the sake of the theoretical analysis, it is assumed that the sampled DNA strands follow a Poisson distribution.
 - Does not account for synthesis or sequencing biases, but still provides significant insights into strand sampling behavior.
@@ -474,12 +477,20 @@ Assume we have a BEC with $\varepsilon=0.6$ and an encoder with $c_w=2$.
 ---
 
 ## Recap
+
+<div style="font-size:0.8em; line-height: 1.2;">
 - The storage model consists of $nc_w$ synthesized strands and $nc_r$ sampled strands. Each strand is sampled a number of times drawn from a $\text{Poisson}(\lambda)$ distribution. The index of each strand is assumed to remain intact.
 
 
 - The data is transmited through a Binary Symmetric Channel (BSC) with substitution rate $\varepsilon$.
 
 - In a Binary Erasure Channel (BEC), the capacity of the channel must be greater or equal to the rate of the code. 
+
+</div>
+
+![](assets/full_proc.PNG){width=1000px height=180px fig-align="center"}
+
+
 
     
 ::: {.center}
@@ -488,15 +499,17 @@ Assume we have a BEC with $\varepsilon=0.6$ and an encoder with $c_w=2$.
 
 ## The Case $\varepsilon = 0$
 
-<div style="font-size:0.9em; line-height: 1.2;">
+<div style="font-size:0.7em; line-height: 1.0;">
 
-- When $\varepsilon = 0$, there are **no sequencing errors**, so each read is error-free.
+- When $\varepsilon = 0$, there are **no substitution errors**.<br><br>
 
-- Each DNA strand is sampled independently, and the number of times a strand appears follows a **Poisson distribution** with mean $\lambda = \frac{c_r}{c_w}$.
+- Each DNA strand is sampled independently, and the number of times a strand appears follows a **Poisson distribution** with mean $\lambda = \frac{c_r}{c_w}$.<br><br>
 
-- The probability that a given strand is sampled 0 times is:  $\mathbb{P}[X=0] = e^{-\lambda}$. If a strand is not observed in the read process, we effectively have an **erasure**.
+- The probability that a given strand is sampled 0 times is $\mathbb{P}[X=0] = e^{-\lambda}$. <br><br>
 
-- Thus, the model can be modeled as a **Binary Erasure Channel (BEC)** where the erasure probability is $\varepsilon =e^{-c_r / c_w}$.
+- If a strand is not observed in the read process, we effectively have an **erasure**.<br><br>
+
+- Thus, the model can be modeled as a **Binary Erasure Channel (BEC)** with erasure probability: $\varepsilon =e^{-c_r / c_w}$.
 
 </div>
 
@@ -504,7 +517,7 @@ Assume we have a BEC with $\varepsilon=0.6$ and an encoder with $c_w=2$.
 
 ## The Case $\varepsilon = 0$ - cont.
 
-<div style="font-size:0.8em; line-height: 1.2;">
+<div style="font-size:0.7em; line-height: 1.2;">
 
 - Since the capacity of the BEC must be greater or equal to the rate of the code, we get that: 
 
@@ -525,21 +538,26 @@ $$
 
 ## The Case $\varepsilon \neq 0$ 
 
-<div style="font-size:0.9em; line-height: 1.2;">
+<div style="font-size:0.7em; line-height: 1.4;">
 
-- Now, each sampled bit is transmitted through a BSC with error probability $\varepsilon>0$.
+- Now, each sampled bit is transmitted through a BSC with error probability $\varepsilon>0$.<br><br>
 
-- Recall that it is assumed that the index of each strand remains intact, and that each strand is sampled $k$ times, where $k$ is $Poisson(\frac{c_r}{c_w})$ distributed.
+- Recall that it is assumed that the index of each strand remains intact, and that each strand is sampled $k$ times, where $k$ is $Poisson(\frac{c_r}{c_w})$ distributed.<br><br>
 
-- Assume that for each bit in each strand, we are given a tuple $(k_0,k_1)$ that indicates how how many times the bit was sampled as 0 and 1, consecutively. Note that $k_0+k_1=k$.
+- Assume that for each bit in each strand, we are given a tuple $(k_0,k_1)$ that indicates how how many times the bit was sampled as 0 and 1, consecutively. Note that $k_0+k_1=k$.<br><br>
 
 - The probability that the samples of the bit are ($k_0,k_1$) given that the bit has value 0 is:
+
+$$
+P((k_0,k_1)|0)=\frac{e^{-\lambda}\lambda^{k_0+k_1}}{(k_0+k_1)!} {k_0+k_1\choose k_1} (1-\varepsilon)^{k_0}\varepsilon^{k_1}
+$$
+
 
 </div>
 
 ---
 
-## The case $\varepsilon \neq 0$ - cont.
+## The Case $\varepsilon \neq 0$ - cont.
 
 <div style="font-size:0.8em; line-height: 1.2;">
 
@@ -553,13 +571,13 @@ $$
 
 * The probability of observing the sample counts $(k_0, k_1)$ given that the bit is 1 is symmetric with respect to swapping $k_0$ and $k_1$.
 
-* The following example illustrates how the calculations are performed.
+The following example illustrates how the calculations are performed.
 
 </div>
 
 ---
 
-## The case $\varepsilon \neq 0$ - Example
+## The Case $\varepsilon \neq 0$ - Example
 
 - <span style="font-size:0.8em"> In this example, we assume that $\epsilon=0.1$ and $\lambda=3$. </span>
 
@@ -627,13 +645,18 @@ $$
 
 ---
 
-## The case $\varepsilon \neq 0$ - cont.
+## The Case $\varepsilon \neq 0$ - cont.
 
-- The authors adopt a per-bit perspective to analyze the lower bound on performance.
+<div style="font-size:0.8em; line-height: 1.2;">
 
-- They use the bit-level probability in simulations to empirically estimate a lower bound on the read cost, $c_r$.
+- The authors analyze the system from a **bit-level perspective**, rather than over entire strands. <br><br>
 
-- Since the analysis is performed at the bit level rather than the strand level, and the bound is based on simulation results, it is important to note that the bound is empirical and may not be tight.
+- Specifically, they simulate the decoding process and compute the probability of successful recovery **per bit**, conditioned on the known true value (either 0 or 1). This allows detailed numerical estimation of the expected read effort required for reliable decoding.<br><br>
+
+- Since the analysis is performed per-bit and not per-strand, and relies on simulations rather than a closed-form expression, the resulting bound on $c_r$ is **empirical** and  **non-tight**.
+
+</div>
+
 
 
 ## $c_r$ vs $c_w$: Theoretical bounds 
@@ -895,7 +918,7 @@ $$
 $$
 :::
 
-and after we transimetted the message, it was recieved as:
+and after transmitting the message, it was received as:
 
 ::: {.big-math}
 $$
@@ -903,7 +926,10 @@ $$
 $$
 :::
 
-What can help us recover the erasured bit?
+
+</span>
+
+What can help us recover the erasured bit?</span>
 
 </div>
 
@@ -941,60 +967,80 @@ To recover the missing bit, we compute the parity of the known bits and compare 
 
 ## What happens if more than 1 erasure?
 
+<div style="font-size:0.8em; line-height: 1.2;">
+
 Assume with have the same data as before with the pairity check bit:
 
 <div style="text-align: center; font-family: monospace; font-size: 1.5em;">
 1 0 0 1 1 0 <span style="color:red;">1</span>
 </div> <br>
 
-And now, after transmitting this data, the data recieved is:<br><br>
+And now, after transmitting this data, the recieved data is:<br><br>
 <div style="text-align: center; font-family: monospace; font-size: 1.5em;">
 1 ? 0 1 ? 0 <span style="color:red;">1</span>
 </div> <br>
-Can our pairity check bit help us recover both erasured bits?
+Can our pairity check bit recover both erasured bits?
+
+</div>
 
 ---
 
 ## Naive Idea
 
+<div style="font-size:0.6em; line-height: 1.2;">
+
 We can parttion the message into 2 distinct parts, and add a pairity check bit for every part.
 
-![](assets/naive1.PNG){width=600px height=290px fig-align="center"}
+![](assets/naive1.PNG){width=500px height=240px fig-align="center"}
+
+</div>
 
 ---
 
 ## Naive Idea
 
+<div style="font-size:0.6em; line-height: 1.2;">
 We can parttion the message into 2 distinct parts, and add a pairity check bit for every part.
 
 
-![](assets/naive2.PNG){width=600px height=290px fig-align="center"}
+![](assets/naive2.PNG){width=500px height=240px fig-align="center"}
+
+</div>
+---
+
+## Naive Idea
+
+<div style="font-size:0.6em; line-height: 1.2;">
+
+We can parttion the message into 2 distinct parts, and add a pairity check bit for every part.
+
+![](assets/naive3.PNG){width=500px height=240px fig-align="center"}
+
+</div>
+
 
 ---
 
 ## Naive Idea
 
+<div style="font-size:0.6em; line-height: 1.2;">
+
 We can parttion the message into 2 distinct parts, and add a pairity check bit for every part.
 
-![](assets/naive3.PNG){width=600px height=290px fig-align="center"}
+![](assets/naive4.PNG){width=500px height=240px fig-align="center"}
+
+</div>
 
 ---
 
 ## Naive Idea
 
-We can parttion the message into 2 distinct parts, and add a pairity check bit for every part.
-
-![](assets/naive4.PNG){width=600px height=290px fig-align="center"}
-
----
-
-## Naive Idea
+<div style="font-size:0.6em; line-height: 1.2;">
 
 We can parttion the message into 2 distinct parts, and add a pairity check bit for every part.
 
-![](assets/naive5.PNG){width=600px height=290px fig-align="center"}
+![](assets/naive5.PNG){width=500px height=240px fig-align="center"}
 
-<div style="font-size:0.8em; line-height: 1.2;">
 <span class="fragment"> So now, when the same erasures as before will occur:
 <div style="text-align: center; font-family: monospace; font-size: 1.5em;">
 1 ? 0 1 ? 0 <span style="color:red;">1 0</span>
@@ -1013,12 +1059,14 @@ Are we done?
 ## Possible Solution
 ### Overlapping Pairity Checks
 
+<div style="font-size:0.7em; line-height: 1.2;">
+
 instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
 
 - Consider the following 4-bit example:<br>
-![](assets/ldpc_exa1.PNG){width=900px height=400px}
+![](assets/ldpc_exa1.PNG){width=700px height=300px}
 
-
+</div>
 
 
 
@@ -1027,102 +1075,147 @@ instead of partitioning the data into distinct parts, we can use overlapping pai
 ## Possible Solution
 ### Overlapping Pairity Checks
 
+<div style="font-size:0.7em; line-height: 1.2;">
+
 instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
 
 - Consider the following 4-bit example:<br>
-![](assets/ldpc_exa2.PNG){width=900px height=400px}
+![](assets/ldpc_exa2.PNG){width=700px height=300px}
+
+</div>
 
 
 ## Possible Solution
 ### Overlapping Pairity Checks
 
+<div style="font-size:0.7em; line-height: 1.2;">
+
 instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
 
 - Consider the following 4-bit example:<br>
-![](assets/ldpc_exa3.PNG){width=900px height=400px}
+![](assets/ldpc_exa3.PNG){width=700px height=300px}
+
+</div>
 
 ---
 
 ## Possible Solution
 ### Overlapping Pairity Checks
 
+<div style="font-size:0.7em; line-height: 1.2;">
+
 instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
 
 - Consider the following 4-bit example:<br>
-![](assets/ldpc_exa4.PNG){width=900px height=400px}
+![](assets/ldpc_exa4.PNG){width=700px height=300px}
+
+</div>
 
 ---
 
 ## Possible Solution
 ### Overlapping Pairity Checks
 
+<div style="font-size:0.7em; line-height: 1.2;">
+
 instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
 
 - Consider the following 4-bit example:<br>
-![](assets/ldpc_exa5.PNG){width=900px height=400px}
+![](assets/ldpc_exa5.PNG){width=700px height=300px}
+
+</div>
 
 ---
 
 ## Possible Solution
 ### Overlapping Pairity Checks
 
+<div style="font-size:0.7em; line-height: 1.2;">
+
 instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
 
 - Consider the following 4-bit example:<br>
-![](assets/ldpc_exa6.PNG){width=900px height=400px}
+![](assets/ldpc_exa6.PNG){width=700px height=300px}
+
+</div>
 
 ---
 
 ## Possible Solution
 ### Overlapping Pairity Checks
 
+<div style="font-size:0.7em; line-height: 1.2;">
+
 instead of partitioning the data into distinct parts, we can use overlapping pairity checks among the data bits.
 
 - Consider the following 4-bit example:<br>
-![](assets/ldpc_exa7.PNG){width=900px height=400px}
+![](assets/ldpc_exa7.PNG){width=670px height=290px}
 
+
+- With this 4-bit block pairity checks, we can correct any 2 erasures in the block.
+
+</div>
 ---
 
-## Possible Solution  
-### Overlapping Parity Checks
+## Possible Solution
+### Parity Check Bits Protection
 
-- <span style="font-size:0.8em">In the overlapping parity check example, we showed how to correct any 2 erasures in a 4-bit message. </span>
+<div style="font-size:0.6em; line-height: 1.2;">
 
-- <span style="font-size:0.8em">What would happen if we apply this strategy repeatedly over consecutive 4-bit blocks in a longer message?</span>
+- Consider the previous example:
 
-![](assets/4-bit_ex.PNG){width=600px height=150px fig-align="center"}
 
-- <span style="font-size:0.8em">And what if we increase the overlap size together with the amount of pairity checks per overlap — how does that impact performance and error correction?</span>
+  <div style="margin-left: 250px; margin-top: -10px; margin-bottom: 5px; text-align: center;">
+    <img src="assets/ldpc_exa7.PNG" width="400px" height="150px" style="display: inline-block;">
+  </div>
 
-![](assets/16-bit_ex.PNG){width=800px height=140px fig-align="center"}
+- Assume that the erasures are as follows:
+
+  <div style="margin-left: 250px; margin-top: -10px; margin-bottom: 5px; text-align: center;">
+    <img src="assets/pairity_er1.PNG" width="400px" height="160px" style="display: inline-block;">
+  </div>
+
+- Can the erasured data bit be recovered?
+
+</div>
 
 ---
 
 ## Possible Solution
 ### Parity Check Bits Protection
 
-<!-- TODO continue the intuition with this case -->
+<div style="font-size:0.8em; line-height: 1.2;">
 
-<div style="text-align: center; font-family: monospace; font-size: 1.5em;">
-1  0  ?  1  1  0  <span class="fragment" style="color:red;">?  1  ?</span>
+We can embed **parity-check protection bits** within the existing parity-check structure:
+
+<div style="margin-left: 100px; margin-top: -10px; margin-bottom: 5px; text-align: center;">
+  <img src="assets/pairity_protect.PNG" width="800px" height="320px" style="display: inline-block;">
 </div>
 
-- Consider our previous example:
-![](assets/ldpc_exa7.PNG){width=900px height=400px}
+This allows us to protect and recover even the **parity-check bits themselves**.
 
-- Assume that the erasures are as follows:
-
+</div>
 
 
+---
 
-- A natural question arises: how are the **parity check bits** protected, given that they are also subject to substitution errors?
+## Possible Solution  
+### Pairity Chack Implementation
 
-- The solution lies in the **structure of LDPC codes**:  
-  Parity bits are **not isolated**—they are also included in other parity check equations.
+<div style="font-size:0.7em; line-height: 1.2;">
 
-- By involving **both data and parity bits** in the parity constraints, LDPC codes ensure that **parity bits are themselves protected** and can be recovered during decoding.
+- What would happen if we apply the 4-bit strategy repeatedly over consecutive 4-bit blocks in a longer message?
 
-- This design enables the **belief propagation algorithm** to iteratively correct errors in both data and parity bits, and effectively recover all the data.
+![](assets/4-bit_ex.PNG){width=500px height=120px fig-align="center"}
+
+- And what if we increase the overlap size together with the amount of pairity checks per overlap — how does that impact performance and error correction?
+
+![](assets/16-bit_ex.PNG){width=600px height=110px fig-align="center"}
+
+</div>
+
+
+---
 
 
 ## Density and the Role of Overlap
@@ -1134,38 +1227,192 @@ instead of partitioning the data into distinct parts, we can use overlapping pai
 
 - In the 1960s, Robert Gallager introduced a groundbreaking approach for this challenge — now known as LDPC codes (Low-Density Parity-Check codes).
 
+
+
 ---
 
 ## Density and the Role of Overlap
+
+<div style="font-size:0.7em; line-height: 1.2;">
 - Gallager showed how to **balance two competing goals**:
-  - Reducing the code's redundancy (which favors larger overlapping neighborhoods),
-  - With **low decoding complexity** and **High recovery power** (which favors smaller overlaps).
+  - Reducing the code's redundancy and **High recovery power** (which favors larger overlapping neighborhoods),
+  - With **low decoding complexity** (which favors smaller overlaps).
 
 - He introduced the concept of **density**, which is a measure of how many bits participate in each parity check:
-  - **Higher density** means more overlap (stronger recovery),
+  - **Higher density** means more overlap (lower redundancy),
   - **Lower density** means less overlap (faster decoding).
 
-:::{.smaller}
+</div>
+
+---
+
 ## Low Density
 
 ::: {.incremental}
 
-- Gallager showed that even **sparse** parity-check matrices can achieve strong error correction, by using efficient **decoding algorithms** like belief propagation.
+- Gallager showed that even **sparse** parity-checks can achieve strong error correction, by using efficient **decoding algorithms** like belief propagation.
 
-- Sparsity reduces complexity while still maintaining performance close to capacity.
+- Sparsity reduces the decoding complexity while still maintaining performance close to Shannon's limit.
 
-- Gallager also showed that **randomly generated** sparse matrices usually perform well.
+- Gallager also showed that **randomly generated** pairity checks perform well with high probability.
 
 - Randomness avoids problematic patterns in the code structure.
-
-- In practice, carefully designed random LDPC matrices approach the Shannon limit.
-
 :::
 
-:::
 
 ## LDPC Theory
+### Tanner Graphs
 
+<div style="font-size:0.7em; line-height: 1.2;">
+
+- A **Tanner graph** is a **bipartite graph** with:
+  - **Variable nodes**: one for each bit.
+  - **Check nodes**: one for each parity-check.
+- An edge connects variable node $v_j$ and check node $c_i$ if and only if $v_j$ participates in $c_i$.
+
+Let's take a look at a familiar Tanner graph:
+
+![](assets/general_tanner.PNG){width=630px height=240px fig-align="center"}
+
+</div>
+
+---
+
+
+## LDPC Theory
+### Parity Check Equations
+
+![](assets/general_tanner.PNG){width=580px height=230px fig-align="center"}
+
+<div style="font-size:0.7em; line-height: 1.3;">
+This Tanner graph defines 3 parity check equations:
+</div>
+
+<div style="font-size:0.7em; line-height: 1.3;">
+$$
+\begin{aligned}
+& c_1 \oplus c_2 \oplus c_3 \oplus c_6 \oplus c_7 = 0 \\
+& c_1 \oplus c_2 \oplus c_3 \oplus c_5 = 0 \\
+& c_1 \oplus c_3 \oplus c_4 \oplus c_5 = 0
+\end{aligned}
+$$
+
+
+</div>
+
+---
+
+## LDPC Theory
+### Matrix Formulation
+
+<div style="font-size:0.6em; line-height: 1.3;">
+$$
+\begin{aligned}
+& c_1 \oplus c_2 \oplus c_3 \oplus c_6 \oplus c_7 = 0 \\
+& c_1 \oplus c_2 \oplus c_3 \oplus c_5 = 0 \\
+& c_1 \oplus c_3 \oplus c_4 \oplus c_5 = 0
+\end{aligned}
+$$
+
+</div>
+
+<div style="font-size:0.7em; line-height: 1.3;">
+Codeword constraints are often written in matrix form. The above constraints become:
+</div>
+
+<div style="font-size:0.6em; line-height: 1.3;">
+$$
+\underbrace{
+\begin{bmatrix}
+1 & 1 & 1 & 0 & 0 & 1 & 1 \\
+1 & 1 & 1 & 0 & 1 & 0 & 0 \\
+1 & 0 & 1 & 1 & 1 & 0 & 0
+\end{bmatrix}
+}_H
+\cdot
+\begin{bmatrix}
+c_1 \\
+c_2 \\
+c_3 \\
+c_4 \\
+c_5 \\
+c_6 \\
+c_7
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\
+0 \\
+0
+\end{bmatrix}
+$$
+</div>
+
+
+
+## LDPC Theory
+### Pairity Check Matrix
+
+<div style="font-size:0.7em; line-height: 1.2;">
+
+- As seen in the previous slide, LDPC code can be presented as a parity-check matrix $H$. <br><br>
+
+- The matrix is composed of $n$ columns and $k$ rows.<br><br>
+
+- Each column represents a bit (pairity bit or regular bit).<br><br>
+
+- Each row represents a parity-check equation over some bits.<br><br>
+
+- Each row has only a few non-zero entries, which mean that the matrix is sparse and the pairity checks have low density.
+
+</div>
+
+---
+
+## LDPC Theory
+### Pairity Check Matrix - Codewords
+
+<div style="font-size:0.8em; line-height: 1.2;">
+
+- A codeword is a vector of length $n$ that satisfies all pairity checks.
+
+- As demonstrated, all pairity checks are satisfied if multiplying $H$ with a vector $v$ is 0.
+
+- Therefore, every codeword $c$ must satisfy $Hc=0$.
+
+</div>
+
+---
+
+## LDPC Theory
+### Encoding Algorithm
+
+<div style="font-size:0.6em; line-height: 1.2;">
+- We’ve seen how the **parity-check matrix** $H$ determines whether a vector $\bar{c}$ is a valid codeword by checking:
+  
+  $$
+  H\bar{c} = 0
+  $$
+
+- Our next goal is **to construct such valid codewords** from raw data. That is, we want to define an **encoding matrix** $G$ such that:
+
+  $$
+  \bar{c} = G\bar{d}
+  $$
+
+  where $\bar{d}$ is the data vector.<br><br>
+
+- This implies that the columns of $G$ must be orthogonal to the rows of $H$.<br><br>
+
+- There exists a well-defined mathematical procedure to construct such a matrix $G$ from $H$.
+
+</div>
+
+
+
+
+
+<!--
 - A LDPC code can be presented as a parity-check matrix $H$.
 
 - The matrix is composed of $n$ columns and $k$ rows, where each column represents a bit (pairity bit or regular bit), and each row represents a parity-check equation over some bits.
