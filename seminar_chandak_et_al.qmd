@@ -1,6 +1,6 @@
 ---
 title: "Seminar on DNA Data Storage"
-subtitle: "Improved read/write cost tradeoff in DNA-based data storage using LDPC codes<br><br>Shubham Chandak, Kedar Tatwawadi, Billy Lau, Jay Mardia, Matthew Kubit, Joachim Neu, Peter Griffin, Mary Wootters, Tsachy Weissman, Hanlee J<br>(2019)<br><br>Presented by: Atar Ron and Mattan Hoory"
+subtitle: "Improved read/write cost tradeoff in DNA-based data storage using LDPC codes<br><br>Shubham Chandak, Kedar Tatwawadi, Billy Lau, Jay Mardia, Matthew Kubit, Joachim Neu, Peter Griffin, Mary Wootters, Tsachy Weissman, Hanlee J (2019)<br><br>Presented by: Atar Ron and Mattan Hoory"
 format:
   revealjs: 
     title-slide-attributes:
@@ -155,11 +155,9 @@ Since the cost of write and cost of read are strongly correlated, this paper aim
 
 **Important Note:** <span style="font-size:0.9em">We can also define coverage at the strand level: the average number of times a strand is observed in the sampled reads. We'll refer back to this concept later on.</span>
 
-
-# The Model
-
-
----
+::: {.center}
+## The Model
+:::
 
 ## Model Notations
 
@@ -623,9 +621,9 @@ When designing an encoding and decoding scheme, we must account for **two primar
 
 - **Inner Code Errors** — During synthesis and sequencing, strands may undergo **substitution**, **insertion**, or **deletion** errors. The inner code must correct these errors to recover the original encoded information.
 
----
-
 ## Two types of coding strategies
+
+<!-- TODO (Mattan): Add legends -->
 
 </br></br></br>
 
@@ -741,78 +739,6 @@ Single Large-Block LDPC
 
 :::
 
-
-
-
-
-
-<!--
-## Coding Strategies
-
-- In the DNA-based storage world, there is a variety of coding schemes and techniques to recover inner and outer code errors.
-
-- The authors of the paper consider 2 coding strategies:
-  * **Inner/Outer Code Separation** - a coding startegy that is composed of an inner code, which handles error inside strands, and outer code, which handles errors in the order of the strands. 
-  * **Single Large Block Code** - a coding strategy where large block of inforamtion us encoded, and then it is segmented into strands. 
-
-- Most of works on DNA-based storage prior to this work used the seperation technique, some incorporating elements from the single large block strategy.
-
-
-Waiting for Mattan's illustrations of the coding strategies.
-
-
-
-
-## Inner/Outer Code Strategy
-
-
-
-
-::: {.incremental}
-
-- <span style="font-size:0.8em">This strategy uses two layers of coding:
-
-  - <span style="font-size:0.8em">**Outer code**: Applied across information segments to correct **erasures**.
-  - <span style="font-size:0.8em">**Inner code**: Applied within each strand to correct **substitution errors**.
-
-- <span style="font-size:0.8em">The decoder groups reads by index and applies **majority voting** per position. Then:
-  - <span style="font-size:0.8em">The **inner decoder** corrects strand-level errors.
-  - <span style="font-size:0.8em">The **outer decoder** recovers missing segments.
-
-- <span style="font-size:0.8em">This approach is less effective for short blocks, but near-optimal erasure codes exist for large $n$.
-
-:::
-
-
-![](assets/inner_outer.PNG){width=900px height=180px fig-align="center"}
-
-
-
-## Single large block code
-
-::: {.incremental}
-
-- <span style="font-size:0.8em">Instead of using two separate codes, this approach encodes the **entire data block** using one large **LDPC (Low-Density Parity-Check) code**, and then seperates the encoded block into segments. </span>
-
-- <span style="font-size:0.8em">Each segment contains a small portion of a single, long LDPC codeword. </span>
-
-- <span style="font-size:0.8em">During decoding:</span>
-  - <span style="font-size:0.8em">All sequenced strands are aligned using their **indices**.</span>
-  - <span style="font-size:0.8em">The collected data is treated as a **noisy, partial version** of the LDPC codeword.</span>
-  - <span style="font-size:0.8em">A **belief propagation** algorithm is used to recover the full data block.</span>
-
-- <span style="font-size:0.8em">This method enables a better read/write cost tradeoff.</span>
-
-:::
- 
-
-
-![](assets/large_block.PNG){width=600px height=190px fig-align="center"}
-
--->
-
-
----
 
 ## Coding Strategies - Summary
 
@@ -1571,7 +1497,6 @@ This is Our Codeword!
 ## LDPC Decoding: Belief propagation algorithm
 - Gallager introduced the idea of iterative, messagepassing decoding of LDPC codes.
 - The idea is to iteratively share the results of local node decoding by passing them along edges of the Tanner graph.
-- We will demonstrate this decoding method for the BSC
 
 ## Message decoding
 ::: {.r-hstack style="gap:40px; align-items:center; justify-content:center;"}
@@ -1618,36 +1543,44 @@ Decode
 :::
 
 ## Optimality of the Sum–Product Algorithm
+$$\hat x_i=\arg\max_{x_i\in\{0,1\}} P(X_i=x_i \mid \mathbf y)$$
 
 :::{.incremental}
-  $$\hat x_i=\arg\max_{x_i\in\{0,1\}} P(X_i=x_i \mid \mathbf y)$$
 - The code bits $x_i$ are independent  
-- The messages passed are independent ⟹ the Tanner graph has no cycles
+- The Tanner graph has no cycles
 - **Not** met in practice
 :::
 
 ## A-priori and LLRs probability {.smaller}
+::: {.incremental}
+- **Def**: For a binary variable $x_i$ The **log of posterior ratio** is given by: $$L_\text{posterior}(x_i) = \log\frac{p(x_i=0 \mid y)}{p(x_i=1 \mid y)} \quad
+\begin{cases}
+> 0 & \text{bit more likely 0} \\
+< 0 & \text{bit more likely 1} \\
+= 0 & \text{no preference (erasure)}
+\end{cases}$$
+- Bayes': $$L_\text{posterior}= L_\text{prior} + \tilde{L}$$
 
-:::{.incremental}
-- **Definition**: For a binary variable $x_i$ The **log of posterior ratio** is given by: $$L_\text{posterior}(x_i)=\log\frac{p(x_i=0 \mid y)}{p(x_i=1 \mid y)}$$
-- The **log prior ratio** is given by: $$L_\text{prior}(x)=\log\frac{p(x=0)}{p(x=1)}$$
-- The log-likelihood ratio (LLR) is given by: $$\tilde L_i(x)=\log\frac{p(y \mid x=0)}{p(y \mid x=1)}$$
-- $L(x) > 0$ ⇒ bit more likely 0, $L(x) < 0$ ⇒ bit more likely 1.
+::: {.columns}
+
+::: {.column width="50%"}
+- **log prior ratio**: $$L_\text{prior}(x_i)=\log\frac{p(x_i=0)}{p(x_i=1)}$$
 :::
 
-## Intuition for the Sum–Product Algorithm
+::: {.column width="50%"}
+- **log-likelihood ratio** (LLR): $$\tilde L(x_i)=\log\frac{p(y_i \mid x_i=0)}{p(y_i \mid x_i=1)}$$
+:::
+:::
 
-:::{.incremental}
-- Iterative message-passing refines $\tilde L_i$ into **a-posteriori** LLRs that incorporate the parity-check constraints.
-- $L_\text{posterior}(x_i)=\log\frac{p(x_i=0 \mid y)}{p(x_i=1 \mid y)}$, $L_\text{prior}(x)=\log\frac{p(x=0)}{p(x=1)}$
--  $\tilde L_i(x)=\log\frac{p(y \mid x=0)}{p(y \mid x=1)}$
-- Bayes: $$L_\text{posterior}=\tilde{L}_i + L_\text{prior}(x)$$
+- Iterative message-passing updates $L_\text{posterior}$ using parity-check constraints.
+
 :::
 
 ## *Variable* and *Check* Node Connection Sets
 
 :::{.incremental}
 For an LDPC code with parity-check matrix $H\in \mathbb{R}^{m \times n}$
+
 - Let $\mathcal N(i)$ denote the **connection set of variable node** $v_i$ — the **check-node indices** connected to $v_i$  
   $$\mathcal N(i)=\bigl\{\,j : H_{j,i}=1\bigr\}.$$
 
@@ -1672,38 +1605,31 @@ Stop if $H\hat{\mathbf x}^T=0$ **or** the iteration limit is reached; otherwise 
 :::
 
 ## Example - Channel LLRs for a BSC
-$H=\left[\begin{array}{llllll}
+$$H=\left[\begin{array}{llllll}
 1 & 1 & 0 & 1 & 0 & 0 \\
 0 & 1 & 1 & 0 & 1 & 0 \\
 1 & 0 & 0 & 0 & 1 & 1 \\
 0 & 0 & 1 & 1 & 0 & 1
-\end{array}\right] \implies$
+\end{array}\right] \implies$$
 
-The following Tanner graph:
 <div style="center; position:relative;">
 ![](assets/tannerex.png){fig-align="center"}
 </div>
 
 ## Example – Channel LLRs for a BSC {.smaller}
+:::{.incremental}
+- For a BSC with crossover probability $p=0.2$, assume: $$\mathbf x=[0\;0\;1\;0\;1\;1] \qquad \mathbf y=[1\;0\;1\;0\;1\;1]$$
 
-For a BSC with crossover probability $p=0.2$, assume: $$\mathbf x=[0\;0\;1\;0\;1\;1] \qquad \mathbf y=[1\;0\;1\;0\;1\;1]$$
-
-The LLR for bit $i$ is  
-$$
-\tilde L_i(x)=\log\frac{p(y \mid x=0)}{p(y \mid x=1)}=
+- The LLR for bit $i$ is  
+$$\tilde L_i(x)=\log\frac{p(y \mid x=0)}{p(y \mid x=1)}=
 \begin{cases}
 \log\dfrac{p}{1-p}, & y_i=1,\\[6pt]
 \log\dfrac{1-p}{p}, & y_i=0.
-\end{cases}
-$$
+\end{cases}$$
 
-With $\log\dfrac{0.2}{0.8}=-1.3863$ and $\log\dfrac{0.8}{0.2}=+1.3863$ we get  
-
-$$
-\mathbf{\tilde L}=[\,-1.3863,\;1.3863,\,-1.3863,\;1.3863,\,-1.3863,\,-1.3863\,].
-$$
-These values are the initial messages $\tilde L_i$ fed into the decoder.
-
+- With $\log\dfrac{0.2}{0.8}=-1.3863$ and $\log\dfrac{0.8}{0.2}=+1.3863$ we get $$\mathbf{\tilde L}=[\,-1.3863,\;1.3863,\,-1.3863,\;1.3863,\,-1.3863,\,-1.3863\,]$$
+- These values are the initial messages $\tilde L_i$ fed into the decoder.
+:::
 
 ## LDPC Decoding example
 <iframe src="./assets/BP.html" width="1920" height="800" style="border: 1px solid #ccc" frameborder=0></iframe>
@@ -1716,8 +1642,8 @@ These values are the initial messages $\tilde L_i$ fed into the decoder.
 ## Encoding a single binary file {auto-animate=true auto-animate-easing="ease-in-out"}
 
 - File size: $192_\text{KB} = 192 \times 1000_\text{B} = 1 536 000_\text{bits}$
-- Encoding steps from: 
-[https://github.com/shubhamchandak94/LDPC_DNA_storage](https://github.com/shubhamchandak94/LDPC_DNA_storage/blob/master/dna_storage.py)
+- Data is encrypted and compressed before encoding (to reduce homopolymers)
+- Encoding steps from based on [github code](https://github.com/shubhamchandak94/LDPC_DNA_storage/blob/master/dna_storage.py)
 - KB is decimal (1000 bytes = 1 KB), not binary (1024 bytes = 1 KiB)
 
 ::: {.r-hstack style="align-items: center; justify-content: center;"}
@@ -1814,7 +1740,7 @@ These values are the initial messages $\tilde L_i$ fed into the decoder.
 ## Encoded oligo structure {auto-animate=true auto-animate-easing="ease-in-out"}
 | Segment                             | bp         |
 | ----------------------------------- | ---------- |
-| BCH-protected index                 | $14_\text{bit} / 2 = 7_\text{bp}$      |
+| Index (pseudorandom permutation)                 | $14_\text{bit} / 2 = 7_\text{bp}$      |
 | BCH redundancy      | $12_\text{bit} / 2 = 6_\text{bp}$       |
 | Sync marker (`AGT`)            | $3_\text{bp}$       |
 | **Payload** | $84_\text{bp}$      |
@@ -2002,7 +1928,7 @@ $$
 
 
 ::: {.center}
-# 7 Decode Schema
+## Decode Schema
 :::
 
 ## The Decode pipeline {.smaller}
