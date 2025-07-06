@@ -499,27 +499,6 @@ $$
 
 </div>
 
----
-
-## The Case $\varepsilon \neq 0$ - cont.
-
-<div style="font-size:0.8em; line-height: 1.2;">
-
-$$
-P((k_0,k_1)|0)=\mathbb{P}[X=k] {k_0+k_1\choose k_1} (1-\varepsilon)^{k_0}\varepsilon^{k_1}
-$$
-
-* The term $\mathbb{P}[X=k]$ is the probability that a poisson random variable gets the value $k_0+k_1=k$. 
-
-* the term ${k_0+k_1\choose k_1} (1-\varepsilon)^{k_0}\varepsilon^{k_1}$ is the binomial probability that there are $k_1$ errors out of $k_0+k_1$ samples. 
-
-* The probability of observing the sample counts $(k_0, k_1)$ given that the bit is 1 is symmetric with respect to swapping $k_0$ and $k_1$.
-
-The following example illustrates how the calculations are performed.
-
-</div>
-
----
 
 ## The Case $\varepsilon \neq 0$ - Example
 
@@ -584,23 +563,6 @@ The following example illustrates how the calculations are performed.
 
 </div>
 :::
-
-
-
----
-
-## The Case $\varepsilon \neq 0$ - cont.
-
-<div style="font-size:0.8em; line-height: 1.2;">
-
-- The authors analyze the system from a **bit-level perspective**, rather than over entire strands. <br><br>
-
-- Specifically, they simulate the decoding process and compute the probability of successful recovery **per bit**, conditioned on the known true value (either 0 or 1). This allows detailed numerical estimation of the expected read effort required for reliable decoding.<br><br>
-
-- Since the analysis is performed per-bit and not per-strand, and relies on simulations rather than a closed-form expression, the resulting bound on $c_r$ is **empirical** and  **non-tight**.
-
-</div>
-
 
 
 ## $c_r$ vs $c_w$: Theoretical bounds 
@@ -1041,22 +1003,6 @@ This allows us to protect and recover even the **parity-check bits themselves**.
 
 </div>
 
----
-
-## Low Density
-
-::: {.incremental}
-
-- Gallager showed that even low density parity-checks can achieve strong error correction, by using efficient **decoding algorithms** like belief propagation.
-
-- Sparsity reduces the decoding complexity while still maintaining performance close to Shannon's limit.
-
-- Gallager also showed that **randomly generated** pairity checks perform well with high probability.
-
-- Randomness avoids problematic patterns in the code structure.
-:::
-
-
 ## LDPC Theory
 ### Tanner Graphs
 
@@ -1161,21 +1107,6 @@ $$
 - Each row represents a parity-check equation over some bits.<br><br>
 
 - Each row has only a few non-zero entries, which mean that the matrix is sparse and the pairity checks have low density.
-
-</div>
-
----
-
-## LDPC Theory
-### Pairity Check Matrix - Codewords
-
-<div style="font-size:0.8em; line-height: 1.2;">
-
-- A codeword is a vector of length $n$ that satisfies all pairity checks.
-
-- As demonstrated, all pairity checks are satisfied if multiplying $H$ with a vector $v$ is 0.
-
-- Therefore, every codeword $c$ must satisfy $Hc=0$.
 
 </div>
 
