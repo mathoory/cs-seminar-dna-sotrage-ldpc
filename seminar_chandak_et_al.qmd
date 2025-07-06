@@ -2133,11 +2133,6 @@ For **Experiment 9**, which utilized the weakest error correction settings (0.1 
 * **Relying on simulations** for performance evaluation, which may not fully capture real-world complexities
 
 
-## Crafting the Presentation: Tools
-- [`Quarto`](https://quarto.org/): markdown-based authoring system that supports multiple output formats.
-- [`revealjs`](https://revealjs.com/): a framework for creating interactive presentations using HTML and JavaScript.
-  - [`simplemenu`](https://github.com/Martinomagnifico/quarto-simplemenu): a plugin to create a menu bar that allows us to navigate through the presentation.
-
 ## In the words of Robert Gallager
 
 ::: {.columns}
@@ -2157,3 +2152,13 @@ For **Experiment 9**, which utilized the weakest error correction settings (0.1 
 :::
 
 :::
+
+::: {.center}
+# Thank you for your attention!
+Questions?
+:::
+
+## Crafting the Presentation: Tools
+- [`Quarto`](https://quarto.org/): markdown-based authoring system that supports multiple output formats.
+- [`revealjs`](https://revealjs.com/): a framework for creating interactive presentations using HTML and JavaScript.
+  - [`simplemenu`](https://github.com/Martinomagnifico/quarto-simplemenu): a plugin to create a menu bar that allows us to navigate through the presentation.
