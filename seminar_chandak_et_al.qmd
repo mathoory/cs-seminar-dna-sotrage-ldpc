@@ -1697,7 +1697,6 @@ This is Our Codeword!
 ## LDPC Decoding: Belief propagation algorithm
 - Gallager introduced the idea of iterative, messagepassing decoding of LDPC codes.
 - The idea is to iteratively share the results of local node decoding by passing them along edges of the Tanner graph.
-- We will demonstrate this decoding method for the BSC
 
 ## Message decoding
 ::: {.r-hstack style="gap:40px; align-items:center; justify-content:center;"}
@@ -1744,36 +1743,44 @@ Decode
 :::
 
 ## Optimality of the Sum–Product Algorithm
+$$\hat x_i=\arg\max_{x_i\in\{0,1\}} P(X_i=x_i \mid \mathbf y)$$
 
 :::{.incremental}
-  $$\hat x_i=\arg\max_{x_i\in\{0,1\}} P(X_i=x_i \mid \mathbf y)$$
 - The code bits $x_i$ are independent  
-- The messages passed are independent ⟹ the Tanner graph has no cycles
+- The Tanner graph has no cycles
 - **Not** met in practice
 :::
 
 ## A-priori and LLRs probability {.smaller}
+::: {.incremental}
+- **Def**: For a binary variable $x_i$ The **log of posterior ratio** is given by: $$L_\text{posterior}(x_i) = \log\frac{p(x_i=0 \mid y)}{p(x_i=1 \mid y)} \quad
+\begin{cases}
+> 0 & \text{bit more likely 0} \\
+< 0 & \text{bit more likely 1} \\
+= 0 & \text{no preference (erasure)}
+\end{cases}$$
+- Bayes': $$L_\text{posterior}= L_\text{prior} + \tilde{L}$$
 
-:::{.incremental}
-- **Definition**: For a binary variable $x_i$ The **log of posterior ratio** is given by: $$L_\text{posterior}(x_i)=\log\frac{p(x_i=0 \mid y)}{p(x_i=1 \mid y)}$$
-- The **log prior ratio** is given by: $$L_\text{prior}(x)=\log\frac{p(x=0)}{p(x=1)}$$
-- The log-likelihood ratio (LLR) is given by: $$\tilde L_i(x)=\log\frac{p(y \mid x=0)}{p(y \mid x=1)}$$
-- $L(x) > 0$ ⇒ bit more likely 0, $L(x) < 0$ ⇒ bit more likely 1.
+::: {.columns}
+
+::: {.column width="50%"}
+- **log prior ratio**: $$L_\text{prior}(x_i)=\log\frac{p(x_i=0)}{p(x_i=1)}$$
 :::
 
-## Intuition for the Sum–Product Algorithm
+::: {.column width="50%"}
+- **log-likelihood ratio** (LLR): $$\tilde L(x_i)=\log\frac{p(y_i \mid x_i=0)}{p(y_i \mid x_i=1)}$$
+:::
+:::
 
-:::{.incremental}
-- Iterative message-passing refines $\tilde L_i$ into **a-posteriori** LLRs that incorporate the parity-check constraints.
-- $L_\text{posterior}(x_i)=\log\frac{p(x_i=0 \mid y)}{p(x_i=1 \mid y)}$, $L_\text{prior}(x)=\log\frac{p(x=0)}{p(x=1)}$
--  $\tilde L_i(x)=\log\frac{p(y \mid x=0)}{p(y \mid x=1)}$
-- Bayes: $$L_\text{posterior}=\tilde{L}_i + L_\text{prior}(x)$$
+- Iterative message-passing updates $L_\text{posterior}$ using parity-check constraints.
+
 :::
 
 ## *Variable* and *Check* Node Connection Sets
 
 :::{.incremental}
 For an LDPC code with parity-check matrix $H\in \mathbb{R}^{m \times n}$
+
 - Let $\mathcal N(i)$ denote the **connection set of variable node** $v_i$ — the **check-node indices** connected to $v_i$  
   $$\mathcal N(i)=\bigl\{\,j : H_{j,i}=1\bigr\}.$$
 
@@ -1798,38 +1805,31 @@ Stop if $H\hat{\mathbf x}^T=0$ **or** the iteration limit is reached; otherwise 
 :::
 
 ## Example - Channel LLRs for a BSC
-$H=\left[\begin{array}{llllll}
+$$H=\left[\begin{array}{llllll}
 1 & 1 & 0 & 1 & 0 & 0 \\
 0 & 1 & 1 & 0 & 1 & 0 \\
 1 & 0 & 0 & 0 & 1 & 1 \\
 0 & 0 & 1 & 1 & 0 & 1
-\end{array}\right] \implies$
+\end{array}\right] \implies$$
 
-The following Tanner graph:
 <div style="center; position:relative;">
 ![](assets/tannerex.png){fig-align="center"}
 </div>
 
 ## Example – Channel LLRs for a BSC {.smaller}
+:::{.incremental}
+- For a BSC with crossover probability $p=0.2$, assume: $$\mathbf x=[0\;0\;1\;0\;1\;1] \qquad \mathbf y=[1\;0\;1\;0\;1\;1]$$
 
-For a BSC with crossover probability $p=0.2$, assume: $$\mathbf x=[0\;0\;1\;0\;1\;1] \qquad \mathbf y=[1\;0\;1\;0\;1\;1]$$
-
-The LLR for bit $i$ is  
-$$
-\tilde L_i(x)=\log\frac{p(y \mid x=0)}{p(y \mid x=1)}=
+- The LLR for bit $i$ is  
+$$\tilde L_i(x)=\log\frac{p(y \mid x=0)}{p(y \mid x=1)}=
 \begin{cases}
 \log\dfrac{p}{1-p}, & y_i=1,\\[6pt]
 \log\dfrac{1-p}{p}, & y_i=0.
-\end{cases}
-$$
+\end{cases}$$
 
-With $\log\dfrac{0.2}{0.8}=-1.3863$ and $\log\dfrac{0.8}{0.2}=+1.3863$ we get  
-
-$$
-\mathbf{\tilde L}=[\,-1.3863,\;1.3863,\,-1.3863,\;1.3863,\,-1.3863,\,-1.3863\,].
-$$
-These values are the initial messages $\tilde L_i$ fed into the decoder.
-
+- With $\log\dfrac{0.2}{0.8}=-1.3863$ and $\log\dfrac{0.8}{0.2}=+1.3863$ we get $$\mathbf{\tilde L}=[\,-1.3863,\;1.3863,\,-1.3863,\;1.3863,\,-1.3863,\,-1.3863\,]$$
+- These values are the initial messages $\tilde L_i$ fed into the decoder.
+:::
 
 ## LDPC Decoding example
 <iframe src="./assets/BP.html" width="1920" height="800" style="border: 1px solid #ccc" frameborder=0></iframe>
@@ -1842,8 +1842,8 @@ These values are the initial messages $\tilde L_i$ fed into the decoder.
 ## Encoding a single binary file {auto-animate=true auto-animate-easing="ease-in-out"}
 
 - File size: $192_\text{KB} = 192 \times 1000_\text{B} = 1 536 000_\text{bits}$
-- Encoding steps from: 
-[https://github.com/shubhamchandak94/LDPC_DNA_storage](https://github.com/shubhamchandak94/LDPC_DNA_storage/blob/master/dna_storage.py)
+- Data is encrypted and compressed before encoding (to reduce homopolymers)
+- Encoding steps from based on [github code](https://github.com/shubhamchandak94/LDPC_DNA_storage/blob/master/dna_storage.py)
 - KB is decimal (1000 bytes = 1 KB), not binary (1024 bytes = 1 KiB)
 
 ::: {.r-hstack style="align-items: center; justify-content: center;"}
@@ -1940,7 +1940,7 @@ These values are the initial messages $\tilde L_i$ fed into the decoder.
 ## Encoded oligo structure {auto-animate=true auto-animate-easing="ease-in-out"}
 | Segment                             | bp         |
 | ----------------------------------- | ---------- |
-| BCH-protected index                 | $14_\text{bit} / 2 = 7_\text{bp}$      |
+| Index (pseudorandom permutation)                 | $14_\text{bit} / 2 = 7_\text{bp}$      |
 | BCH redundancy      | $12_\text{bit} / 2 = 6_\text{bp}$       |
 | Sync marker (`AGT`)            | $3_\text{bp}$       |
 | **Payload** | $84_\text{bp}$      |
